@@ -42,11 +42,12 @@ RNF09 – O sistema deve possuir mecanismo de backup periódico.
 
 Backend:
 
-Java 17
+Java
 Spring Boot
 Spring Security
 WebSocket
 PostgreSQL
+MongoDB
 
 Frontend:
 
