@@ -1,0 +1,139 @@
+/*Fontes*/
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+.outfit-font {
+    font-family: "Outfit", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+}
+
+*{
+    margin: 0px;
+    padding: 0px;
+}
+
+:root{
+    --fonts : #e6e5e5;
+    --primary: #5E4BA6;
+    --second: #9c9c9c;
+    --dark-01: #1E1E1E;
+    --dark-02: #292929;
+    --dark-03: #3D3D3D;
+}
+
+::-webkit-scrollbar{
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb{
+    border: 1px solid var(--primary);
+    border-radius: 1px;
+    background-color: var(--fonts);
+}
+
+body{
+    background-color: var(--dark-01);
+    height: 100%;
+    margin: 0px;
+    font-family: "Outfit", sans-serif;
+}
+
+section{
+    padding: 20px 40px;
+    width: 380px;
+    background-color: var(--dark-02);
+    text-align: center;
+    border-radius: 5px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+h1{
+    font-size: 26px;
+    color: var(--fonts);
+}
+
+.inpbox{
+    margin: 20px 10px;
+    width: 95%;
+    text-align: initial;
+    justify-content: center;
+}
+
+
+label{
+    padding: 0px;
+    margin: 10px;
+    color: var(--fonts);
+    font-size: 16px;
+}
+
+.input{
+    margin: 1px;
+    padding: 5px;
+    width: 97%;
+    background-color: var(--dark-02);
+    border: 0.5px solid var(--fonts);
+    border-radius: 5px;
+    color: var(--fonts);
+    font-size: 14px;
+}
+
+.date{
+    width: 100%;
+    display: flex;
+    margin: 5px;
+    justify-content: space-between;
+}
+
+.input-date{
+    width: 100vw;
+    padding: 5px;
+    background-color: var(--dark-02);
+    border: 0.5px solid var(--fonts);
+    border-radius: 5px;
+    color: var(--fonts);
+    font-size: 14px;
+}
+
+.input-date::placeholder{
+    color: var(--fonts);
+}
+
+#input-bithday{
+    color-scheme: dark;
+}
+
+.terms{
+    padding: 0px 15px;
+    color: var(--fonts);
+    font-size: 14px;
+    width: 94%;
+}
+
+.btn{
+    cursor: pointer;
+    margin: 10px;
+    padding: 7px;
+    width: 95%;
+    background-color: var(--primary);
+    border: none;
+    border-radius: 5px;
+    color: var(--fonts);
+    font-size: 16px;
+}
+
+a{
+    margin: 10px;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+@media all and (max-width: 430px){ 
+    section{
+        width: 100%;
+    }
+}

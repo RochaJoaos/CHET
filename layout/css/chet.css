@@ -1,0 +1,69 @@
+/*Fontes*/
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+.outfit-font {
+    font-family: "Outfit", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+}
+
+*{
+    margin: 0px;
+    padding: 0px;
+}
+
+:root{
+    --fonts : #e6e5e5;
+    --fonts-off : #b3b3b3;
+    --primary: #5E4BA6;
+    --second: #9c9c9c;
+    --dark-01: #1E1E1E;
+    --dark-02: #292929;
+    --dark-03: #3D3D3D;
+}
+
+body{
+    background-color: var(--dark-01);
+    height: 100vh;
+    font-family: "Outfit", sans-serif;
+}
+
+nav{
+    display: flex;
+    width: 100vw;
+    justify-content: space-between;
+}
+
+.options{
+    margin: 20px;
+}
+
+.nav-opt{
+    margin: 5px 0px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: var(--fonts-off);
+}
+
+.nav-opt:hover{
+    background-color: var(--dark-02);
+}
+
+.opt-selected{
+    color: var(--fonts);
+}
+
+.nav-account{
+    margin: 5px 0px;
+    padding: 8px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    color: var(--fonts);
+    background-color: var(--dark-02);
+}
+
+a{
+    font-size: 18px;
+}
