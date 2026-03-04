@@ -29,7 +29,7 @@ body{
     font-family: "Outfit", sans-serif;
 }
 
-nav{
+.nav{
     display: flex;
     width: 100vw;
     justify-content: space-between;
@@ -66,4 +66,23 @@ nav{
 
 a{
     font-size: 18px;
+}
+
+.main{
+    display: flex;
+    width: 100vw;
+    height: 92vh;
+}
+
+.contats{
+    width: 400px;
+    height: 100%;
+    background-color: var(--dark-03);
+}
+
+.chat{
+    flex-grow: 1;
+    margin: 0px 20px;
+    height: 100%;
+    background-color: var(--dark-02);   
 }
