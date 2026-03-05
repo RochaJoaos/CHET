@@ -21,7 +21,7 @@
     --second:    #9c9c9c;
     --dark-01:   #1E1E1E;
     --dark-02:   #242424;
-    --dark-03:   #3D3D3D;
+    --dark-03:   #353535;
 
     /* divisor */
     --divider-w:      5px;
@@ -64,7 +64,7 @@ body {
 }
 
 .nav-account {
-    margin: 5px 0px;
+    margin: 8px 0px;
     padding: 8px 20px;
     border-radius: 30px;
     text-decoration: none;
@@ -72,8 +72,12 @@ body {
     background-color: var(--dark-02);
 }
 
+.nav-account:hover{
+    background-color: var(--primary);
+}
+
 a {
-    font-size: 18px;
+    font-size: 20px;
 }
 
 /* ── MAIN ── */
@@ -91,6 +95,35 @@ a {
     height: 100%;
     overflow-y: auto;
 }
+
+.message-or-contats{
+    margin: 0px 20px;
+}
+
+.contats-opt{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.contats-btn{
+    cursor: pointer;
+    margin: 1px;
+    padding: 5px 16px;
+    border: none;
+    border-radius: 30px;
+    background-color: var(--dark-02);
+    color: var(--fonts);
+    font-family: "Outfit", sans-serif;
+    font-size: 16px;
+    
+}
+
+.contats-btn-active{
+    background-color: var(--dark-03);
+}
+
+
 
 /* ── CHAT ── */
 .chat {
