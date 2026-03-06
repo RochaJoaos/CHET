@@ -13,9 +13,9 @@ function Login() {
                 <label for="name">Senha</label>
                 <input className="input" type="password" name="password" id="input-password"/>
                 <a href="..." target="_blank" rel="noopener noreferrer">Esqueceu sua senha?</a>
-                <input type="button" value="Continuar" className="btn"/>
-                <a href="..." target="_self" rel="noopener noreferrer">Crie sua conta</a>
             </div>
+            <input type="button" value="Continuar" className="btn"/>
+            <a href="..." target="_self" rel="noopener noreferrer" id='create-account'>Crie sua conta</a>
         </section>
         </>
     )
