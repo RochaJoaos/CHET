@@ -1,0 +1,81 @@
+body{
+    background-color: var(--dark-01);
+    height: 100vh;
+    margin: 0px;
+    font-family: "Outfit", sans-serif;
+}
+
+section{
+    padding: 30px 60px;
+    width: 480px;
+    background-color: var(--dark-02);
+    text-align: center;
+    border-radius: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+h1{
+    font-size: 32px;
+    color: var(--fonts);
+}
+
+.inpbox{
+    margin: 20px 0px 30px 0px;
+    width: 100%;
+    text-align: initial;
+    justify-content: center;
+}
+
+
+label{
+    padding: 0px;
+    margin: 10px;
+    color: var(--fonts);
+    font-size: 16px;
+}
+
+.input{
+    margin: 1px 0px;
+    padding: 10px;
+    width: 100%;
+    background-color: var(--dark-02);
+    border: 0.5px solid var(--fonts);
+    border-radius: 10px;
+    color: var(--fonts);
+    font-size: 14px;
+}
+
+.terms{
+    padding: 0px 15px;
+    color: var(--fonts);
+    font-size: 14px;
+    width: 94%;
+}
+
+.btn{
+    cursor: pointer;
+    margin: 10px 0px;
+    padding: 10px;
+    width: 100%;
+    background-color: var(--primary);
+    border: none;
+    border-radius: 10px;
+    color: var(--fonts);
+    font-family: "Outfit", sans-serif;
+    font-size: 18px;
+}
+
+a{
+    margin: 10px;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+@media all and (max-width: 430px){ 
+    section{
+        width: 100%;
+    }
+}

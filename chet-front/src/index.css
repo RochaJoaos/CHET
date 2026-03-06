@@ -28,3 +28,14 @@
     --divider-color:  #1E1E1E;
     --divider-active: #5E4BA6;
 }
+
+::-webkit-scrollbar{
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb{
+    border: 1px solid var(--primary);
+    border-radius: 1px;
+    background-color: var(--fonts);
+}
+
