@@ -1,0 +1,118 @@
+/*Fontes*/
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+:root{
+    --fonts : #ffffff;
+    --primary: #5E4BA6;
+    --alternative: #423259;
+    --second: #9c9c9c;
+    --found: #131313;
+}
+
+::-webkit-scrollbar{
+    width: 10px;
+    background-color: transparent
+}
+
+::-webkit-scrollbar-thumb{
+    border-radius: 1px;
+    background-color: var(--fonts);
+    border: 1px solid var(--found);
+    border-radius: 20px;
+}
+
+
+*{
+    margin: 0px;
+    padding: 0px;
+    font-family: "Outfit", sans-serif;
+}
+
+
+.outfit-font {
+    font-family: "Outfit", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+  }
+
+body{
+    background-color: var(--found);
+    margin: 0px;
+    padding: 0px;
+}
+
+header{
+    position: fixed;
+    display: flex;
+    align-items: center;
+    color: var(--fonts);
+}
+
+.logo{
+    margin: 15px 0px 15px 15px;
+    width: 50px;
+    height: 50px;
+}
+
+.menu{
+    list-style-type: none;
+    display: flex;
+
+}
+
+li{
+    padding: 10px;
+    font-size: 1.4em;
+    cursor: pointer;
+}
+
+h1{
+    color: var(--fonts);
+}
+
+#title{
+    font-size: 2.4em;
+}
+
+section{
+    width: 100%;
+    height: 100vh;
+    position: relative;
+}
+
+.box{
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    justify-content: center;
+}
+
+#welcome{
+    text-align: center;
+}
+
+.log{
+    width: 160px;
+    margin: 5px;
+    padding: 10px;
+    background-color: transparent;
+    color: var(--fonts);
+    border: 1px solid var(--fonts);
+    border-radius: 10px;
+    font-family: "Outfit", sans-serif;
+    font-size: 18px;
+    cursor: pointer;
+
+}
+
+.log:hover{
+    background-color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+h1{
+    margin: 10px 0px;
+    font-size: 3em;
+}

@@ -1,0 +1,30 @@
+/*Fontes*/
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+.outfit-font {
+    font-family: "Outfit", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+}
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+:root {
+    --fonts:     #e6e5e5;
+    --fonts-off: #b3b3b3;
+    --primary:   #5E4BA6;
+    --second:    #9c9c9c;
+    --dark-01:   #1E1E1E;
+    --dark-02:   #242424;
+    --dark-03:   #353535;
+
+    /* divisor */
+    --divider-w:      5px;
+    --divider-color:  #1E1E1E;
+    --divider-active: #5E4BA6;
+}
