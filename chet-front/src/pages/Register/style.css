@@ -45,14 +45,16 @@ label{
     border: 0.5px solid var(--fonts);
     border-radius: 10px;
     color: var(--fonts);
+    color-scheme: dark;
     font-size: 14px;
 }
 
 .terms{
     padding: 0px 15px;
     color: var(--fonts);
+    text-align: center;
     font-size: 14px;
-    width: 94%;
+    width: 100%;
 }
 
 .btn{
