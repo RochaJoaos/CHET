@@ -124,7 +124,7 @@ export default function ChatLayout() {
               <button className="contats-btn">Contatos</button>
             </div>
             <div>
-              <button className="add-friend">Adicionar amigos+</button>
+              <button className="add-friend">Adicionar amigos +</button>
             </div>
           </div>
         </div>
