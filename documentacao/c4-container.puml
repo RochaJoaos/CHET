@@ -1,0 +1,90 @@
+@startuml
+title Sistema de Mensagens - C2 + C3 Architecture
+
+' =========================
+' IMPORT C4 LIBRARY
+' =========================
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+
+' ==================================================
+' C2 — CONTAINER DIAGRAM
+' ==================================================
+
+Person(user, "Usuário", "Pessoa que utiliza o sistema de chat")
+
+System_Boundary(chatSystem, "Sistema de Mensagens") {
+
+Container(frontend, "Frontend", "React + JavaScript", "Interface web de mensagens")
+
+Container(api, "Backend API", "Java + Spring Boot", "Fornece endpoints REST")
+
+Container(websocket, "WebSocket Server", "Spring WebSocket", "Comunicação em tempo real")
+
+ContainerDb(postgres, "User Database", "PostgreSQL", "Armazena usuários e autenticação")
+
+ContainerDb(mongo, "Message Database", "MongoDB", "Armazena mensagens do chat")
+
+}
+
+System_Ext(notificationService, "Serviço de Notificação", "Email ou push notifications")
+
+Rel(user, frontend, "Usa pelo navegador")
+
+Rel(frontend, api, "REST / JSON")
+
+Rel(frontend, websocket, "Mensagens em tempo real", "WebSocket")
+
+Rel(api, postgres, "Lê e grava dados de usuários")
+
+Rel(api, mongo, "Lê e grava mensagens")
+
+Rel(websocket, api, "Processa mensagens")
+
+Rel(api, notificationService, "Envia notificações")
+
+
+' ==================================================
+' C3 — COMPONENT DIAGRAM (Backend)
+' ==================================================
+
+Container_Boundary(api_components, "Backend Components") {
+
+Component(authController, "Auth Controller", "Spring REST Controller", "Gerencia login e registro")
+
+Component(userController, "User Controller", "Spring REST Controller", "Gerencia usuários")
+
+Component(chatController, "Chat Controller", "WebSocket Controller", "Gerencia envio de mensagens")
+
+Component(authService, "Auth Service", "Spring Service", "Lógica de autenticação")
+
+Component(chatService, "Chat Service", "Spring Service", "Lógica de mensagens")
+
+Component(userService, "User Service", "Spring Service", "Regras de negócio de usuários")
+
+Component(userRepository, "User Repository", "Spring Data JPA", "Acesso ao PostgreSQL")
+
+Component(messageRepository, "Message Repository", "Mongo Repository", "Acesso ao MongoDB")
+
+Component(jwtFilter, "JWT Filter", "Spring Security", "Valida tokens")
+
+}
+
+Rel(authController, authService, "Login / registro")
+Rel(userController, userService, "Gerencia usuários")
+Rel(chatController, chatService, "Processa mensagens")
+
+Rel(authService, userRepository, "Consulta usuários")
+
+Rel(chatService, messageRepository, "Salva e consulta mensagens")
+Rel(userService, userRepository, "Consulta dados")
+
+Rel(userRepository, postgres, "SQL")
+Rel(messageRepository, mongo, "Document Query")
+
+Rel(jwtFilter, authController, "Valida requisições")
+Rel(jwtFilter, userController, "Protege endpoints")
+Rel(jwtFilter, chatController, "Protege endpoints")
+
+@enduml
