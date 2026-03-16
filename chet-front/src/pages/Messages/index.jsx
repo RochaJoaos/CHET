@@ -16,7 +16,7 @@ export default function ChatLayout() {
     const main = mainRef.current;
 
     const MIN_PX = 300;
-    const MIN_CHAT_PX = 1000;
+    const MIN_CHAT_PX = 500;
 
     let dragging = false;
     let startX = 0;
@@ -138,7 +138,18 @@ export default function ChatLayout() {
         </div>
 
         <div className="chat" ref={chatRef}>
-          {/* chat aqui */}
+          <div className="username-chat">
+            <div className="user-area">
+              <div className="user-photo">
+              </div>
+              <p>Username</p>
+            </div>
+          </div>
+          <div className="messages-chat"></div>
+          <div className="input-chat">
+            <input type="text" name="" id="input-message" />
+            <input type="button" value="send" />
+          </div>
         </div>
       </div>
 

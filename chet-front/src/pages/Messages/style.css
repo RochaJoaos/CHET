@@ -132,6 +132,36 @@ a {
     border-radius: 8px;
 }
 
+.username{
+    display: flex;
+    width: 100%;
+    height: 50px;
+}
+
+.user-area{
+    align-items: center;
+    margin: 10px;
+    display: flex;
+}
+
+.user-photo{
+    width: 30px;
+    height: 30px;
+    margin: 0px 10px 0px 0px;
+    background-color: var(--primary);
+    border-radius: 50px;
+}
+
+.messages-chat{
+    width: 100%;
+    height: 80%;
+}
+
+p{
+    font-size: 18px;
+    color: var(--fonts);
+}
+
 /* ── DIVIDER ── */
 .divider {
     width: var(--divider-w);
