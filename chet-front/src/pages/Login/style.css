@@ -69,6 +69,7 @@ label{
 }
 
 a{
+    cursor: pointer;
     margin: 10px;
     color: var(--primary);
     text-decoration: none;

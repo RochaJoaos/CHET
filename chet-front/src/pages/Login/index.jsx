@@ -1,6 +1,14 @@
 import './style.css'
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+        
+    const navigate = useNavigate();
+
+    function btnCadastrar(){
+        navigate("/register")
+    }
+
     return (
         <>
         <form action="">
@@ -15,7 +23,7 @@ function Login() {
                 <a href="..." target="_blank" rel="noopener noreferrer">Esqueceu sua senha?</a>
             </div>
             <input type='submit' value="Continuar" className="btn"/>
-            <a href="..." target="_self" rel="noopener noreferrer" id='create-account'>Crie sua conta</a>
+            <a target="_self" rel="noopener noreferrer" id='create-account' onClick={btnCadastrar}>Crie sua conta</a>
         </form>
         </>
     )

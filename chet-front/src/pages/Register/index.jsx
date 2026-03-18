@@ -1,6 +1,13 @@
 import './style.css'
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+    const navigate = useNavigate();
+
+    function btnEntrar(){
+        navigate("/login")
+    }
+
     return (
         <>
             <form action="">
@@ -29,7 +36,7 @@ function Register() {
                     <p className="terms">Ao cadastrar-se você concorda com os<a href="">Termos de serviço</a> e estará ciente do <a href="">Aviso de privacidade</a> da comunidade.</p>
                 </div>
                 <input type="submit" value="Cadastrar" className='btn'/>
-                <a href="">Já tenho conta</a>
+                <a onClick={btnEntrar}>Já tenho conta</a>
             </form>
         </>
     )
