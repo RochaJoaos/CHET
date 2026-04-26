@@ -76,5 +76,8 @@ PostgreSQL     MongoDB       (Futuro: Redis)
 ```
 ## Modelo C4
 
-Nível 1 - Contexto do sistema:
+**Nível 1** - Diagrama de Contexto:<br>
 ![nivel 01 - Contexto](arquitetura/Context.png)
+
+**Nível 2** - Diagrama de Contêiner:<br>
+![nivel 01 - Contexto](arquitetura/Components.png)
