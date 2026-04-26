@@ -1,11 +1,18 @@
 # CHET
-Descrição Geral
+![Java](https://img.shields.io/badge/Java-17+-red)
+![Spring Boot](https://img.shields.io/badge/SpringBoot-API-green)
+![React](https://img.shields.io/badge/React-Frontend-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-RelationalDB-blue)
+![MongoDB](https://img.shields.io/badge/MongoDB-NoSQL-green)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
+
+##Descrição Geral
 
 O sistema proposto consiste em uma plataforma web de comunicação em tempo real, permitindo a troca de mensagens privadas e em grupo entre usuários autenticados.
 A aplicação visa resolver o problema da comunicação digital centralizada, oferecendo recursos modernos como envio de mensagens instantâneas, compartilhamento de arquivos e notificações em tempo real.
 O sistema será desenvolvido com backend em Java (Spring Boot) e frontend em JavaScript, utilizando comunicação via WebSocket para garantir interatividade e baixa latência.
 
-Objetivo do Sistema
+##Objetivo do Sistema
 
 Criar uma aplicação web de mensagens que permita:
 Comunicação privada entre dois usuários
@@ -14,7 +21,7 @@ Envio de mensagens em tempo real
 Compartilhamento de arquivos
 Gerenciamento de usuários
 
-Requisitos Funcionais (RF)
+##Requisitos Funcionais (RF)
 
 RF01 – O sistema deve permitir cadastro de usuários.<br>
 RF02 – O sistema deve permitir autenticação via login e senha.<br>
@@ -29,7 +36,7 @@ RF10 – O sistema deve permitir exclusão de mensagens.<br>
 RF11 – O sistema deve permitir envio de arquivos.<br>
 RF12 – O sistema deve notificar usuários quando receberem novas mensagens.<br>
 
-Requisitos Não Funcionais (RNF)
+##Requisitos Não Funcionais (RNF)
 
 RNF01 – O sistema deve entregar mensagens em tempo inferior a 200ms.<br>
 RNF02 – O sistema deve suportar múltiplas conexões simultâneas.<br>
@@ -40,7 +47,7 @@ RNF07 – O sistema deve manter integridade dos dados mesmo sob alta carga.<br>
 RNF08 – O sistema deve garantir persistência das mensagens.<br>
 RNF09 – O sistema deve possuir mecanismo de backup periódico.<br>
 
-Backend:
+##Backend:
 
 Java
 Spring Boot<br>
@@ -49,35 +56,13 @@ WebSocket<br>
 PostgreSQL<br>
 MongoDB<br>
 
-Frontend:
+##Frontend:
 
 JavaScript<br>
 React<br>
 WebSocket API<br>
 
-# 💬 Chat System
-
-![Java](https://img.shields.io/badge/Java-17+-red)
-![Spring Boot](https://img.shields.io/badge/SpringBoot-API-green)
-![React](https://img.shields.io/badge/React-Frontend-blue)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-RelationalDB-blue)
-![MongoDB](https://img.shields.io/badge/MongoDB-NoSQL-green)
-![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
-
----
-
-## 🧠 Sobre o projeto
-
-Sistema de mensagens em tempo real inspirado em **Discord / WhatsApp**, desenvolvido com foco em:
-
-- Arquitetura moderna
-- Separação de responsabilidades
-- Escalabilidade real
-- Segurança com JWT
-
----
-
-## 🏗️ Arquitetura
+## Arquitetura
 
 ```text
 Frontend (React - Vite)
