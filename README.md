@@ -72,3 +72,8 @@ Backend (Spring Boot API)
  ┌───────────────┬───────────────┐
  │               │               │
 PostgreSQL     MongoDB       (Futuro: Redis)
+
+```
+## Modelo C4
+
+![nivel 01 - Contexto](arquitetura/Context.png)
