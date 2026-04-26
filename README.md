@@ -80,4 +80,4 @@ PostgreSQL     MongoDB       (Futuro: Redis)
 ![nivel 01 - Contexto](arquitetura/Context.png)
 
 **Nível 2** - Diagrama de Contêiner:<br>
-![nivel 01 - Contexto](arquitetura/Components.png)
+![nivel 02 - Containers](arquitetura/ContainersComponents.png)
