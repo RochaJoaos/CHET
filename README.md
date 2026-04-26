@@ -76,4 +76,5 @@ PostgreSQL     MongoDB       (Futuro: Redis)
 ```
 ## Modelo C4
 
+Nível 1 - Contexto do sistema:
 ![nivel 01 - Contexto](arquitetura/Context.png)
