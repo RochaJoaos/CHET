@@ -54,3 +54,36 @@ Frontend:
 JavaScript<br>
 React<br>
 WebSocket API<br>
+
+# 💬 Chat System
+
+![Java](https://img.shields.io/badge/Java-17+-red)
+![Spring Boot](https://img.shields.io/badge/SpringBoot-API-green)
+![React](https://img.shields.io/badge/React-Frontend-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-RelationalDB-blue)
+![MongoDB](https://img.shields.io/badge/MongoDB-NoSQL-green)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
+
+---
+
+## 🧠 Sobre o projeto
+
+Sistema de mensagens em tempo real inspirado em **Discord / WhatsApp**, desenvolvido com foco em:
+
+- Arquitetura moderna
+- Separação de responsabilidades
+- Escalabilidade real
+- Segurança com JWT
+
+---
+
+## 🏗️ Arquitetura
+
+```text
+Frontend (React - Vite)
+        ↓
+Backend (Spring Boot API)
+        ↓
+ ┌───────────────┬───────────────┐
+ │               │               │
+PostgreSQL     MongoDB       (Futuro: Redis)
