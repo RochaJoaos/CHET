@@ -88,7 +88,7 @@ PostgreSQL     MongoDB       (Futuro: Redis)
 
 ### DER - Diagrama de Entidade e Relacionamente
 
-!{[DER](arquitetura/DER/DER.png)
+![DER](arquitetura/DER/DER.png)
 
 ***obs***: Como o software usa PostgreSQL + MongoDB, não existe FK real entre os bancos.
 
