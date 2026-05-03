@@ -83,3 +83,18 @@ PostgreSQL     MongoDB       (Futuro: Redis)
 ### **Nível 2** - Diagrama de Contêiner:<br>
 
 ![nivel 02 - Containers](arquitetura/ContainersComponents.png)
+
+## Banco de Dados
+
+### DER - Diagrama de Entidade e Relacionamente
+
+!{[DER](arquitetura/DER/DER.jpg)
+
+!obs: Como o software usa PostgreSQL + MongoDB, não existe FK real entre os bancos.
+
+```text
+
+conversationId → referencia → CONVERSATIONS.id
+senderId → referencia → USERS.id
+
+```
