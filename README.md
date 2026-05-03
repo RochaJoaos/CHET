@@ -90,7 +90,7 @@ PostgreSQL     MongoDB       (Futuro: Redis)
 
 !{[DER](arquitetura/DER/DER.jpg)
 
-!obs: Como o software usa PostgreSQL + MongoDB, não existe FK real entre os bancos.
+***obs***: Como o software usa PostgreSQL + MongoDB, não existe FK real entre os bancos.
 
 ```text
 
