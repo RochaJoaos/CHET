@@ -35,3 +35,22 @@ export async function registerUser({ email, name, password }) {
 
   return response.json(); // { name, token }
 }
+
+export async function getMessagesPage(params) {
+  const token =  localStorage.getItem("token")
+
+  const response = await fetch(`${API_BASE_URL}/messages`, {
+    method: "GET",
+    headers: {
+      "content-type": "application/json",
+      "Authorization": `Bearer ${token}`
+    }
+  })
+  
+
+  if(!response.ok){
+    throw new Error("Erro ao carregar página de mensagens.")
+  }
+
+  return response.json()
+}

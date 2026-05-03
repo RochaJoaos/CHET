@@ -1,5 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import './style.css'
+
+import { getMessagesPage } from "../../services/api";
 
 export default function ChatLayout() {
   const contatsRef = useRef(null);
@@ -7,8 +9,21 @@ export default function ChatLayout() {
   const dividerRef = useRef(null);
   const overlayRef = useRef(null);
   const mainRef = useRef(null);
+  const [pageData, setPageData] = useState(null);
 
   useEffect(() => {
+
+    async function loadMessages() {
+      try {
+        const data = await getMessagesPage();
+        setPageData(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    loadMessages();
+
     const contats = contatsRef.current;
     const chat = chatRef.current;
     const divider = dividerRef.current;
@@ -109,7 +124,7 @@ export default function ChatLayout() {
         </div>
         <div className="options">
           <a className="nav-account" href="">
-            @username
+            @{pageData ? pageData.name : "..."}
           </a>
         </div>
       </div>
@@ -147,7 +162,7 @@ export default function ChatLayout() {
           </div>
           <div className="messages-chat"></div>
           <div className="input-chat">
-            <input type="text" name="" id="input-message" />
+            <input type="text" name="" id="input-message" placeholder="digite uma mensagem"/>
             <input type="button" value="send" />
           </div>
         </div>
