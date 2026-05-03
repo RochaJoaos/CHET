@@ -1,6 +1,6 @@
 // Em desenvolvimento, o proxy do Vite redireciona /auth → http://localhost:8080/auth
 // Em produção, defina VITE_API_URL no .env
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "";
+const API_BASE_URL = "http://localhost:8080";
 
 export async function loginUser({ email, password }) {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {

@@ -1,0 +1,55 @@
+@startuml
+!theme mars
+skinparam BoxPadding 10
+skinparam defaultFontName Arial
+
+title Processo de Desenvolvimento de Funcionalidade - CodeWorks
+
+|Cliente|
+start
+:Identifica necessidade de nova funcionalidade;
+:Preenche e envia formulário de solicitação;
+
+|Atendimento (Pré-vendas)|
+:Recebe solicitação;
+:Encaminha para a Engenharia;
+
+|Analista de Requisitos|
+repeat :Analisa formulário de solicitação;
+repeat while (Formulário claro e completo?) is (Não\nContatar cliente)
+-> Sim;
+
+:Conduz reunião de refinamento com equipe/cliente;
+:Documenta Histórias de Usuário e Critérios de Aceitação;
+
+|Desenvolvedor|
+repeat :Implementa a funcionalidade (Código);
+note right
+  **Gargalo Identificado:**
+  Desenvolvedor sofre interrupções 
+  frequentes da equipe de Suporte 
+  para apagar incêndios em produção.
+end note
+
+|QA|
+:Executa testes da funcionalidade;
+repeat while (Passou nos testes sem defeitos?) is (Não\nRegistrar falhas)
+-> Sim;
+
+|Analista de Requisitos|
+:Realiza homologação junto ao cliente;
+
+if (Cliente aprovou a entrega?) then (Não)
+  :Alinhamento de divergências e escopo;
+  note right: Retrabalho gerado por\nfalha de comunicação inicial
+  stop
+else (Sim)
+  |Desenvolvedor|
+  :Realiza implantação em produção;
+  
+  |Cliente|
+  :Funcionalidade entregue e operante;
+  stop
+endif
+
+@enduml
