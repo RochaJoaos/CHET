@@ -1,24 +1,24 @@
 @startuml
 title Sistema de Mensagens - Context Diagram (C1)
 
-' Import do C4 (nível contexto)
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
 ' Pessoas
-Person(user, "Usuário", "Pessoa que envia e recebe mensagens em tempo real")
+Person(user, "Usuário", "Pessoa que envia e recebe mensagens")
 
 ' Sistema principal
-System(chatSystem, "Sistema de Mensagens", "Permite comunicação em tempo real entre usuários")
+System(chatSystem, "Sistema de Mensagens", "Comunicação em tempo real entre usuários")
 
 ' Sistemas externos
 System_Ext(emailSystem, "Serviço de Email", "Envio de notificações e verificação de conta")
-System_Ext(pushSystem, "Serviço de Notificação", "Push notifications (ex: Firebase)")
-System_Ext(authProvider, "Provedor de Autenticação", "OAuth / Login social (Google, etc)")
+System_Ext(pushSystem, "Serviço de Notificação", "Push notifications")
+System_Ext(authProvider, "Provedor de Autenticação", "Login e autenticação (OAuth2)")
 
 ' Relacionamentos
-Rel(user, chatSystem, "Usa via navegador ou app")
-Rel(chatSystem, emailSystem, "Envia emails", "SMTP/API")
-Rel(chatSystem, pushSystem, "Envia notificações", "HTTP")
-Rel(chatSystem, authProvider, "Autentica usuários", "OAuth2")
+Rel(user, chatSystem, "Usa via navegador")
+
+Rel(chatSystem, emailSystem, "Envia emails")
+Rel(chatSystem, pushSystem, "Envia notificações")
+Rel(chatSystem, authProvider, "Autentica usuários")
 
 @enduml
