@@ -166,18 +166,29 @@ p{
     width: 95%;
     height: 54px;
     margin: auto;
-    padding: 16px;
+    padding: 10px;
     background-color: var(--dark-03);
     border-radius: 10px;
 }
 
 #input-message{
-    width: calc(100% - 50px);
+    width: calc(100% - 30px);
     font-size: 16px;
     background-color: transparent;
     border: none;
     outline: none;
     color: var(--fonts);
+}
+
+#btn-message{
+    margin: 0px;
+    width: 30px;
+    padding: 0px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: var(--fonts);
+    font-size: 20px;
 }
 
 /* ── DIVIDER ── */

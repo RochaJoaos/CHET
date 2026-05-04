@@ -157,13 +157,13 @@ export default function ChatLayout() {
             <div className="user-area">
               <div className="user-photo">
               </div>
-              <p>Username</p>
+              <p>Mensagem</p>
             </div>
           </div>
           <div className="messages-chat"></div>
           <div className="input-chat">
             <input type="text" name="" id="input-message" placeholder="digite uma mensagem"/>
-            <input type="button" value="send" />
+            <input type="button" id="btn-message" value=">" />
           </div>
         </div>
       </div>
