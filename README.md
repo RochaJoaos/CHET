@@ -98,3 +98,46 @@ conversationId → referencia → CONVERSATIONS.id
 senderId → referencia → USERS.id
 
 ```
+
+### Tabelas do Banco
+
+users
+
+```text
+   Coluna   |            Tipo             | OrdenaþÒo | Pode ser nulo |       PadrÒo
+------------+-----------------------------+-----------+---------------+--------------------
+ id         | uuid                        |           | not null      | uuid_generate_v4()
+ name       | character varying(100)      |           | not null      |
+ email      | character varying(150)      |           | not null      |
+ password   | character varying(255)      |           | not null      |
+ username   | character varying(50)       |           |               |
+ avatar_url | character varying(255)      |           |               |
+ bio        | text                        |           |               |
+ birth_date | date                        |           |               |
+ created_at | timestamp without time zone |           |               | now()
+ updated_at | timestamp without time zone |           |               | now()
+```
+
+conversations
+
+```text
+   Coluna   |            Tipo             | OrdenaþÒo | Pode ser nulo | PadrÒo
+------------+-----------------------------+-----------+---------------+--------
+ id         | uuid                        |           | not null      |
+ type       | character varying(20)       |           | not null      |
+ name       | character varying(100)      |           |               |
+ created_by | uuid                        |           |               |
+ created_at | timestamp without time zone |           |               | now()
+```
+conversation_participants
+
+```text
+     Coluna      |            Tipo             | OrdenaþÒo | Pode ser nulo |           PadrÒo
+-----------------+-----------------------------+-----------+---------------+-----------------------------
+ id              | uuid                        |           | not null      |
+ conversation_id | uuid                        |           |               |
+ user_id         | uuid                        |           |               |
+ role            | character varying(20)       |           |               | 'MEMBER'::character varying
+ joined_at       | timestamp without time zone |           |               | now()
+```
+
