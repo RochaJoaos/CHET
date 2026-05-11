@@ -1,5 +1,5 @@
-package com.chet.login_api.repositories;
-import com.chet.login_api.domain.user.User;
+package com.chet.login_api.user.repository;
+import com.chet.login_api.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

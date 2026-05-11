@@ -1,12 +1,12 @@
-package com.chet.login_api.controllers;
+package com.chet.login_api.auth.controller;
 
 
-import com.chet.login_api.domain.user.User;
-import com.chet.login_api.dto.LoginRequestDTO;
-import com.chet.login_api.dto.ResgisterRequestDTO;
-import com.chet.login_api.dto.ResponseDTO;
+import com.chet.login_api.user.entity.User;
+import com.chet.login_api.auth.dto.LoginRequestDTO;
+import com.chet.login_api.auth.dto.ResgisterRequestDTO;
+import com.chet.login_api.auth.dto.ResponseDTO;
 import com.chet.login_api.infra.security.TokenService;
-import com.chet.login_api.repositories.UserRepository;
+import com.chet.login_api.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;

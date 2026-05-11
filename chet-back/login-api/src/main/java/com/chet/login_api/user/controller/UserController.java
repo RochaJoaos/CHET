@@ -1,4 +1,4 @@
-package com.chet.login_api.controllers;
+package com.chet.login_api.user.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

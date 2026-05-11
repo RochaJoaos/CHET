@@ -1,7 +1,7 @@
 package com.chet.login_api.infra.security;
 
-import com.chet.login_api.domain.user.User;
-import com.chet.login_api.repositories.UserRepository;
+import com.chet.login_api.user.entity.User;
+import com.chet.login_api.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

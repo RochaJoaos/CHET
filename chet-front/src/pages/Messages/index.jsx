@@ -163,11 +163,12 @@ export default function ChatLayout() {
           <div className="messages-chat"></div>
           <div className="input-chat">
             <input type="text" name="" id="input-message" placeholder="digite uma mensagem"/>
-            <input type="button" id="btn-message" value=">" />
+            <button id="btn-message">
+                <img src="src/assets/icon/send.svg" alt="send" id="icon-btn-message"/>
+            </button>
           </div>
         </div>
       </div>
-
       <div id="drag-overlay" ref={overlayRef}></div>
     </>
   );

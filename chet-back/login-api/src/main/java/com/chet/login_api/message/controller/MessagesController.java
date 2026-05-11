@@ -1,9 +1,9 @@
-package com.chet.login_api.controllers;
+package com.chet.login_api.message.controller;
 
-import com.chet.login_api.domain.user.User;
+import com.chet.login_api.user.entity.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import com.chet.login_api.dto.MessagesPageDTO;
+import com.chet.login_api.message.dto.MessagesPageDTO;
 
 @RestController
 @RequestMapping("/messages")

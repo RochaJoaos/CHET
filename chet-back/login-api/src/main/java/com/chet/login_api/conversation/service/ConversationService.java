@@ -2,7 +2,7 @@ package com.chet.login_api.conversation.service;
 
 import com.chet.login_api.conversation.entity.Conversation;
 import com.chet.login_api.conversation.repository.ConversationRepository;
-import com.chet.login_api.domain.user.User;
+import com.chet.login_api.user.entity.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 

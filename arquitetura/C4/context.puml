@@ -1,24 +1,45 @@
 @startuml
-title Sistema de Mensagens - Context Diagram (C1)
 
-!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+title SSICEP - Aprovação de Entregador
 
-' Pessoas
-Person(user, "Usuário", "Pessoa que envia e recebe mensagens")
+actor "Responsável Logística" as Logistica
 
-' Sistema principal
-System(chatSystem, "Sistema de Mensagens", "Comunicação em tempo real entre usuários")
+participant "API Gateway" as Gateway
+participant "EntregadorController" as Controller
+participant "AprovacaoEntregadorService" as Service
+participant "EntregadorRepository" as Repository
+database "PostgreSQL" as DB
+queue "RabbitMQ" as Rabbit
+participant "Serviço Notificações" as Notification
 
-' Sistemas externos
-System_Ext(emailSystem, "Serviço de Email", "Envio de notificações e verificação de conta")
-System_Ext(pushSystem, "Serviço de Notificação", "Push notifications")
-System_Ext(authProvider, "Provedor de Autenticação", "Login e autenticação (OAuth2)")
+Logistica -> Gateway: PUT /entregadores/{id}/aprovar
 
-' Relacionamentos
-Rel(user, chatSystem, "Usa via navegador")
+Gateway -> Controller: Encaminha requisição JWT válida
 
-Rel(chatSystem, emailSystem, "Envia emails")
-Rel(chatSystem, pushSystem, "Envia notificações")
-Rel(chatSystem, authProvider, "Autentica usuários")
+Controller -> Service: aprovarEntregador(id)
+
+Service -> Repository: findById(id)
+
+Repository -> DB: SELECT entregador
+
+DB --> Repository: Dados entregador
+
+Repository --> Service: Entregador
+
+Service -> Service: Validar perfil logística
+
+Service -> Repository: save(status=APROVADO)
+
+Repository -> DB: UPDATE entregador
+
+Service -> Rabbit: Publicar evento
+
+Rabbit -> Notification: Consumir evento
+
+Notification -> Notification: Enviar e-mail e WhatsApp
+
+Service --> Controller: Retorno sucesso
+
+Controller --> Logistica: HTTP 200 OK
 
 @enduml

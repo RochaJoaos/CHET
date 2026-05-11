@@ -1,4 +1,4 @@
-package com.chet.login_api.domain.user;
+package com.chet.login_api.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
