@@ -75,7 +75,6 @@ a {
 /* ── CONTACTS ── */
 .contats {
     width: 420px;          /* largura inicial */
-    flex-shrink: 0;
     height: 100%;
     overflow-y: auto;
 }
@@ -119,7 +118,55 @@ a {
     font-size: 16px;
 }
 
+.messages-box{
+    width: 100%;
+    padding: 10px;
+    height: calc(100% - 50px);
+}
 
+.conversation-box{
+    margin: auto;
+    width: 95%;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    
+}
+
+.conversation-box:hover{
+    background-color: var(--dark-03);
+}
+
+.photo-perfil{
+    width: 45px;
+    height: 45px;
+    margin: 10px;
+    border-radius: 30px;
+    background-color: var(--primary);
+    position: relative;
+}
+
+.status{
+    width: 18px;
+    height: 18px;
+    border-radius: 30px;
+    border: 3px solid var(--dark-01);
+    background-color: rgb(136, 255, 136);
+    position: absolute;
+    top: 100%;
+    left: 100%;
+    transform: translate(-90%, -90%);
+
+}
+
+.conversation-name{
+    color: var(--fonts);
+    font-size: 1.2em;
+}
+
+.conversation-desc{
+    font-size: 0.9em;
+}
 
 /* ── CHAT ── */
 .chat {

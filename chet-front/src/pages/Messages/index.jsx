@@ -142,6 +142,17 @@ export default function ChatLayout() {
               <button className="add-friend">Adicionar amigos +</button>
             </div>
           </div>
+          <div className="messages-box">
+            <div className="conversation-box">
+                <div className="photo-perfil">
+                  <div className="status"></div>
+                </div>
+                <div className="info-box">
+                  <h2 className="conversation-name">Username</h2>
+                  <p className="conversation-desc">Última mensagem</p>
+                </div>
+            </div>
+          </div>
         </div>
 
         <div className="divider" ref={dividerRef}>
