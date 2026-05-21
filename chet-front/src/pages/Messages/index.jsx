@@ -10,6 +10,8 @@ export default function ChatLayout() {
   const overlayRef = useRef(null);
   const mainRef = useRef(null);
   const [pageData, setPageData] = useState(null);
+  
+  const [activeTab, setActiveTab] = useState("conversas");
 
   useEffect(() => {
 
@@ -89,6 +91,7 @@ export default function ChatLayout() {
       divider.classList.remove("dragging");
     };
 
+
     divider.addEventListener("mousedown", mouseDown);
     document.addEventListener("mousemove", mouseMove);
     document.addEventListener("mouseup", mouseUp);
@@ -107,7 +110,7 @@ export default function ChatLayout() {
       document.removeEventListener("touchend", touchEnd);
     };
   }, []);
-
+  
   return (
     <>
       <div className="nav">
@@ -133,28 +136,39 @@ export default function ChatLayout() {
         <div className="contats" ref={contatsRef}>
           <div className="contats-opt">
             <div className="message-or-contats">
-              <button className="contats-btn contats-btn-active">
+              <button className={activeTab === "conversas" ? "contats-btn btn-on": "contats-btn"} onClick={() => setActiveTab("conversas")}>
                 Conversas
               </button>
-              <button className="contats-btn">Contatos</button>
+              <button className={activeTab === "contatos" ? "contats-btn btn-on": "contats-btn"}  onClick={() => setActiveTab("contatos")}>Contatos</button>
             </div>
             <div>
               <button className="add-friend">Adicionar amigos +</button>
             </div>
           </div>
           <div className="messages-box">
-            <div className="conversation-box">
-                <div className="photo-perfil">
-                  <div className="status"></div>
-                </div>
-                <div className="info-box">
-                  <h2 className="conversation-name">Username</h2>
-                  <p className="conversation-desc">Última mensagem</p>
+            <div className="conversation-area"  style={{display: activeTab === "conversas" ? "block" : "none"}}>
+              <div className="conversation-box">
+                  <div className="photo-perfil">
+                    <div className="status"></div>
+                  </div>
+                  <div className="info-box">
+                    <h2 className="conversation-name">Username</h2>
+                    <p className="conversation-desc">Última mensagem</p>
+                  </div>
+              </div>
+            </div>
+            <div className="contacts-area"  style={{display: activeTab === "contatos" ? "block" : "none"}}>
+                <div className="conversation-box">
+                    <div className="photo-perfil">
+                      <div className="status"></div>
+                    </div>
+                    <div className="info-box">
+                      <h2 className="conversation-name">Username</h2>
+                    </div>
                 </div>
             </div>
           </div>
         </div>
-
         <div className="divider" ref={dividerRef}>
           <div className="divider-handle">
             <span></span>

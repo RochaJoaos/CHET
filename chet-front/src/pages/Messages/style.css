@@ -95,14 +95,14 @@ a {
     padding: 5px 16px;
     border: none;
     border-radius: 30px;
-    background-color: var(--dark-02);
     color: var(--fonts);
+    background-color: var(--dark-02);
     font-family: "Outfit", sans-serif;
     font-size: 16px;
     
 }
 
-.contats-btn-active{
+.btn-on{
     background-color: var(--dark-03);
 }
 
@@ -118,11 +118,20 @@ a {
     font-size: 16px;
 }
 
-.messages-box{
+.messages-box, .contacts-box{
     width: 100%;
     padding: 10px;
     height: calc(100% - 50px);
 }
+
+.conversation-area{
+    display: block;
+}
+
+.contacts-area{
+    display: none;
+}
+
 
 .conversation-box{
     margin: auto;
@@ -229,6 +238,7 @@ p{
 }
 
 #btn-message{
+    cursor: pointer;
     margin: 0px;
     width: 30px;
     height: 30px;
