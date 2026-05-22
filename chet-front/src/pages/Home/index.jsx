@@ -18,7 +18,8 @@ function App() {
       <main>
         <section id='welcome'>
           <div className='box'>
-                <h1>Bem-vindo ao CHET</h1>
+                <img src="src/assets/favicon/android-chrome-512x512.png" alt="logo" className='logo'/>
+                <h1 className='title'>Bem-vindo ao CHET</h1>
                 <input type="button" value="Entrar" className="log" onClick={btnEntrar}/>
                 <input type="button" value="Cadastrar" className="log" onClick={btnCadastrar}/>          
           </div>

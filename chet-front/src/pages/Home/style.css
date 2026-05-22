@@ -42,17 +42,9 @@ body{
     padding: 0px;
 }
 
-header{
-    position: fixed;
-    display: flex;
-    align-items: center;
-    color: var(--fonts);
-}
-
 .logo{
-    margin: 15px 0px 15px 15px;
-    width: 50px;
-    height: 50px;
+    width: 150px;
+    height: 150px;
 }
 
 .menu{
@@ -61,15 +53,10 @@ header{
 
 }
 
-li{
-    padding: 10px;
-    font-size: 1.4em;
-    cursor: pointer;
-}
-
-h1{
+.title{
+    margin: 30px 0px;
     color: var(--fonts);
-    font-size: 2.4em;
+    font-size: 3em;
 }
 
 section{

@@ -54,3 +54,23 @@ export async function getMessagesPage(params) {
 
   return response.json()
 }
+
+export async function getUsers() {
+
+  const token = localStorage.getItem("token");
+
+  const response = await fetch("http://localhost:8080/users", {
+
+    method: "GET",
+
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar usuários");
+  }
+
+  return response.json();
+}

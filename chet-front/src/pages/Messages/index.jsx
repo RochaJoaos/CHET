@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import './style.css'
-
-import { getMessagesPage } from "../../services/api";
+import { getMessagesPage, getUsers } from "../../services/api";
 
 export default function ChatLayout() {
   const contatsRef = useRef(null);
@@ -9,8 +8,9 @@ export default function ChatLayout() {
   const dividerRef = useRef(null);
   const overlayRef = useRef(null);
   const mainRef = useRef(null);
+
   const [pageData, setPageData] = useState(null);
-  
+  const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("conversas");
 
   useEffect(() => {
@@ -25,6 +25,22 @@ export default function ChatLayout() {
     }
 
     loadMessages();
+
+      async function loadUsers() {
+
+      try {
+
+        const data = await getUsers();
+
+        setUsers(data);
+
+      } catch (err) {
+
+        console.error(err);
+      }
+    }
+
+  loadUsers();
 
     const contats = contatsRef.current;
     const chat = chatRef.current;
@@ -127,7 +143,7 @@ export default function ChatLayout() {
         </div>
         <div className="options">
           <a className="nav-account" href="">
-            @{pageData ? pageData.name : "..."}
+            {pageData ? pageData.name : "..."}
           </a>
         </div>
       </div>
@@ -158,14 +174,28 @@ export default function ChatLayout() {
               </div>
             </div>
             <div className="contacts-area"  style={{display: activeTab === "contatos" ? "block" : "none"}}>
-                <div className="conversation-box">
+              {
+                users.map((user) => (
+
+                  <div
+                    className="conversation-box"
+                    key={user.id}
+                  >
+
                     <div className="photo-perfil">
                       <div className="status"></div>
                     </div>
+
                     <div className="info-box">
-                      <h2 className="conversation-name">Username</h2>
+                      <h2 className="conversation-name">
+                        {user.name}
+                      </h2>
                     </div>
-                </div>
+
+                  </div>
+
+                ))
+              }
             </div>
           </div>
         </div>
