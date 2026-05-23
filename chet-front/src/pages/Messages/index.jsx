@@ -158,7 +158,7 @@ export default function ChatLayout() {
               <button className={activeTab === "contatos" ? "contats-btn btn-on": "contats-btn"}  onClick={() => setActiveTab("contatos")}>Contatos</button>
             </div>
             <div>
-              <button className="add-friend">Adicionar amigos +</button>
+              <button className="add-friend">Criar conversa +</button>
             </div>
           </div>
           <div className="messages-box">
@@ -191,7 +191,7 @@ export default function ChatLayout() {
                         {user.name}
                       </h2>
                     </div>
-
+                    <p className="add-icon">+</p>
                   </div>
 
                 ))

@@ -146,6 +146,10 @@ a {
     background-color: var(--dark-03);
 }
 
+.conversation-box:hover .add-icon{
+    opacity: 1;
+}
+
 .photo-perfil{
     width: 45px;
     height: 45px;
@@ -176,6 +180,14 @@ a {
 
 .conversation-desc{
     font-size: 0.9em;
+}
+
+.add-icon{
+    margin-right: 20px;
+    margin-left: auto;
+    opacity: 0;
+    color: var(--fonts);
+    font-size: 28px;
 }
 
 /* ── CHAT ── */
