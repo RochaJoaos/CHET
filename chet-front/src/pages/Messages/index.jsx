@@ -13,6 +13,7 @@ export default function ChatLayout() {
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("conversas");
   const [conversations, setConversations] = useState([]);
+  const [selectedConversation, setSelectedConversation] = useState(null);
 
   async function handleCreateConversation(userId) {
 
@@ -192,8 +193,17 @@ export default function ChatLayout() {
                 conversations.map((conversation) => (
 
                   <div
-                    className="conversation-box"
+                    className={
+                      selectedConversation?.id === conversation.id
+                        ? "conversation-box active-conversation"
+                        : "conversation-box"
+                    }
+
                     key={conversation.id}
+
+                    onClick={() =>
+                      setSelectedConversation(conversation)
+                    }
                   >
 
                     <div className="photo-perfil">
@@ -225,7 +235,6 @@ export default function ChatLayout() {
                     key={user.id}
                     onClick={() => handleCreateConversation(user.id)}
                   >
-
                     <div className="photo-perfil">
                       <div className="status"></div>
                     </div>
@@ -254,9 +263,14 @@ export default function ChatLayout() {
         <div className="chat" ref={chatRef}>
           <div className="username-chat">
             <div className="user-area">
-              <div className="user-photo">
-              </div>
-              <p>Mensagem</p>
+              <div className="user-photo"></div>
+              <p>
+                {
+                  selectedConversation
+                    ? selectedConversation.name
+                    : "Selecione uma conversa"
+                }
+              </p>
             </div>
           </div>
           <div className="messages-chat"></div>
