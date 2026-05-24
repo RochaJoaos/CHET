@@ -1,29 +1,35 @@
 package com.chet.login_api.conversation.controller;
 
+import com.chet.login_api.conversation.dto.ConversationListItemDTO;
 import com.chet.login_api.conversation.entity.Conversation;
 import com.chet.login_api.conversation.service.ConversationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/conversations")
-
 @RequiredArgsConstructor
 
 public class ConversationController {
 
-    private final ConversationService service;
+    private final ConversationService conversationService;
 
-    @PostMapping("/private/{userId}")
-    public ResponseEntity<Conversation>
-    createConversation(@PathVariable UUID userId) {
+    @PostMapping("/private/{targetUserId}")
+    public Conversation createPrivateConversation(
+            @PathVariable UUID targetUserId
+    ) {
 
-        Conversation conversation =
-                service.createPrivateConversation(userId);
+        return conversationService
+                .createPrivateConversation(targetUserId);
+    }
 
-        return ResponseEntity.ok(conversation);
+    @GetMapping
+    public List<ConversationListItemDTO>
+    loadUserConversations() {
+
+        return conversationService
+                .loadUserConversations();
     }
 }

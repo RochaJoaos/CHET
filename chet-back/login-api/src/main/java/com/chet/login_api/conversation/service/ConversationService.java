@@ -9,7 +9,10 @@ import com.chet.login_api.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.chet.login_api.conversation.dto.ConversationListItemDTO;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -120,4 +123,77 @@ public class ConversationService {
 
         return conversation;
     }
+
+    public List<ConversationListItemDTO>
+    loadUserConversations() {
+
+        var auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (auth == null) {
+            throw new RuntimeException("Auth null");
+        }
+
+        String email = auth.getName();
+
+        User currentUser = userRepository
+                .findByEmail(email)
+                .orElseThrow();
+
+        var participations =
+                participantRepository.findByUserId(
+                        currentUser.getId()
+                );
+
+        List<ConversationListItemDTO> conversations =
+                new ArrayList<>();
+
+        for (ConversationParticipant participation
+                : participations) {
+
+            Conversation conversation =
+                    participation.getConversation();
+
+            // pega participantes da conversa
+            var participants =
+                    participantRepository.findByConversationId(
+                            conversation.getId()
+                    );
+
+            String conversationName = "Conversa";
+
+            // conversa privada
+            if (conversation.getType().equals("PRIVATE")) {
+
+                for (ConversationParticipant p : participants) {
+
+                    if (!p.getUser()
+                            .getId()
+                            .equals(currentUser.getId())) {
+
+                        conversationName =
+                                p.getUser().getName();
+
+                        break;
+                    }
+                }
+
+            } else {
+
+                // grupo
+                conversationName = conversation.getName();
+            }
+
+            conversations.add(
+                    new ConversationListItemDTO(
+                            conversation.getId(),
+                            conversationName
+                    )
+            );
+        }
+
+        return conversations;
+    }
 }
+

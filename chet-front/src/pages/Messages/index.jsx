@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import './style.css'
-import { getMessagesPage, getUsers, createConversation} from "../../services/api";
+import { getMessagesPage, getUsers, createConversation, getConversations} from "../../services/api";
 
 export default function ChatLayout() {
   const contatsRef = useRef(null);
@@ -12,6 +12,7 @@ export default function ChatLayout() {
   const [pageData, setPageData] = useState(null);
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("conversas");
+  const [conversations, setConversations] = useState([]);
 
   async function handleCreateConversation(userId) {
 
@@ -41,14 +42,25 @@ export default function ChatLayout() {
 
     async function loadUsers() {
 
-    try {
-      const data = await getUsers();
-      setUsers(data);
+      try {
+        const data = await getUsers();
+        setUsers(data);
+
+        } catch (err) {
+          console.error(err);
+        }
+    } loadUsers();
+
+    async function loadConversations() {
+
+      try {
+        const data = await getConversations();
+        setConversations(data);
 
       } catch (err) {
         console.error(err);
       }
-  } loadUsers();
+    } loadConversations();
 
     const contats = contatsRef.current;
     const chat = chatRef.current;
@@ -176,15 +188,33 @@ export default function ChatLayout() {
           </div>
           <div className="messages-box">
             <div className="conversation-area"  style={{display: activeTab === "conversas" ? "block" : "none"}}>
-              <div className="conversation-box">
-                  <div className="photo-perfil">
-                    <div className="status"></div>
+              {
+                conversations.map((conversation) => (
+
+                  <div
+                    className="conversation-box"
+                    key={conversation.id}
+                  >
+
+                    <div className="photo-perfil">
+                      <div className="status"></div>
+                    </div>
+
+                    <div className="info-box">
+
+                      <h2 className="conversation-name">
+                        {conversation.name}
+                      </h2>
+
+                      <p className="conversation-desc">
+                        Última mensagem
+                      </p>
+
+                    </div>
+
                   </div>
-                  <div className="info-box">
-                    <h2 className="conversation-name">Username</h2>
-                    <p className="conversation-desc">Última mensagem</p>
-                  </div>
-              </div>
+                ))
+              }
             </div>
             <div className="contacts-area"  style={{display: activeTab === "contatos" ? "block" : "none"}}>
               {

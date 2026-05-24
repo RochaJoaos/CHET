@@ -96,3 +96,25 @@ export async function createConversation(userId) {
 
   return response.json();
 }
+
+export async function getConversations() {
+
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_BASE_URL}/conversations`,
+    {
+      method: "GET",
+
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao carregar conversas");
+  }
+
+  return response.json();
+}
