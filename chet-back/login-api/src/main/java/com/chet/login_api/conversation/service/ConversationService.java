@@ -28,17 +28,11 @@ public class ConversationService {
                 .getContext()
                 .getAuthentication();
 
-        System.out.println("AUTH:");
-        System.out.println(auth);
-
         if (auth == null) {
             throw new RuntimeException("Auth está null");
         }
 
         String email = auth.getName();
-
-        System.out.println("EMAIL:");
-        System.out.println(email);
 
         User currentUser = userRepository
                 .findByEmail(email)
@@ -50,12 +44,50 @@ public class ConversationService {
                 .orElseThrow(() ->
                         new RuntimeException("Usuário alvo não encontrado"));
 
-        // impede criar conversa consigo mesmo
+        // impede conversa consigo mesmo
         if (currentUser.getId().equals(targetUser.getId())) {
-            throw new RuntimeException("Você não pode criar conversa consigo mesmo");
+            throw new RuntimeException(
+                    "Você não pode criar conversa consigo mesmo"
+            );
         }
 
-        // cria conversa
+        // busca conversas do usuário atual
+        var currentUserConversations =
+                participantRepository.findByUserId(currentUser.getId());
+
+        // verifica se já existe conversa privada
+        for (ConversationParticipant participant
+                : currentUserConversations) {
+
+            Conversation conversation =
+                    participant.getConversation();
+
+            // ignora grupos
+            if (!conversation.getType().equals("PRIVATE")) {
+                continue;
+            }
+
+            // pega participantes da conversa
+            var participants =
+                    participantRepository.findByConversationId(
+                            conversation.getId()
+                    );
+
+            boolean hasTargetUser = participants
+                    .stream()
+                    .anyMatch(p ->
+                            p.getUser()
+                                    .getId()
+                                    .equals(targetUser.getId())
+                    );
+
+            // já existe conversa
+            if (hasTargetUser) {
+                return conversation;
+            }
+        }
+
+        // cria conversa nova
         Conversation conversation = new Conversation();
 
         conversation.setType("PRIVATE");
@@ -66,7 +98,7 @@ public class ConversationService {
 
         conversation = conversationRepository.save(conversation);
 
-        // adiciona usuário atual
+        // participante atual
         ConversationParticipant currentParticipant =
                 new ConversationParticipant();
 
@@ -76,7 +108,7 @@ public class ConversationService {
 
         participantRepository.save(currentParticipant);
 
-        // adiciona usuário alvo
+        // participante alvo
         ConversationParticipant targetParticipant =
                 new ConversationParticipant();
 
