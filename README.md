@@ -3,7 +3,6 @@
 ![Spring Boot](https://img.shields.io/badge/SpringBoot-API-green)
 ![React](https://img.shields.io/badge/React-Frontend-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-RelationalDB-blue)
-![MongoDB](https://img.shields.io/badge/MongoDB-NoSQL-green)
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
 
 ## Descrição Geral
