@@ -2,28 +2,28 @@ package com.chet.login_api.conversation.controller;
 
 import com.chet.login_api.conversation.entity.Conversation;
 import com.chet.login_api.conversation.service.ConversationService;
-import org.springframework.security.core.Authentication;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/conversations")
+
+@RequiredArgsConstructor
+
 public class ConversationController {
 
     private final ConversationService service;
 
-    public ConversationController(ConversationService service) {
-        this.service = service;
-    }
+    @PostMapping("/private/{userId}")
+    public ResponseEntity<Conversation>
+    createConversation(@PathVariable UUID userId) {
 
-    @GetMapping
-    public List<Conversation> getAll(Authentication auth) {
-        return service.getAll(auth);
-    }
+        Conversation conversation =
+                service.createPrivateConversation(userId);
 
-    @PostMapping
-    public Conversation create(@RequestBody Conversation conversation, Authentication auth) {
-        return service.create(conversation, auth);
+        return ResponseEntity.ok(conversation);
     }
 }

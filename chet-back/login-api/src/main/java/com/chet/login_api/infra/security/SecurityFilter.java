@@ -50,7 +50,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                 );
 
                 var authentication = new UsernamePasswordAuthenticationToken(
-                        user,
+                        user.getEmail(),
                         null,
                         authorities
                 );

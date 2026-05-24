@@ -324,3 +324,23 @@ p{
 #drag-overlay.active {
     display: block;
 }
+
+/* FORM AREA */
+
+.forms-area{
+    display: none;
+    z-index: 10;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-color: #00000070;
+}
+
+.newgroup-form{
+    width: 40vw;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--dark-02);
+}

@@ -74,3 +74,25 @@ export async function getUsers() {
 
   return response.json();
 }
+
+export async function createConversation(userId) {
+
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_BASE_URL}/conversations/private/${userId}`,
+    {
+      method: "POST",
+
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao criar conversa");
+  }
+
+  return response.json();
+}

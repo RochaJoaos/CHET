@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import './style.css'
-import { getMessagesPage, getUsers } from "../../services/api";
+import { getMessagesPage, getUsers, createConversation} from "../../services/api";
 
 export default function ChatLayout() {
   const contatsRef = useRef(null);
@@ -13,6 +13,21 @@ export default function ChatLayout() {
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("conversas");
 
+  async function handleCreateConversation(userId) {
+
+  try {
+
+    const conversation =
+      await createConversation(userId);
+
+    console.log(conversation);
+
+  } catch (err) {
+
+    console.error(err);
+  }
+}
+
   useEffect(() => {
 
     async function loadMessages() {
@@ -22,25 +37,18 @@ export default function ChatLayout() {
       } catch (error) {
         console.error(error);
       }
-    }
+    } loadMessages();
 
-    loadMessages();
+    async function loadUsers() {
 
-      async function loadUsers() {
-
-      try {
-
-        const data = await getUsers();
-
-        setUsers(data);
+    try {
+      const data = await getUsers();
+      setUsers(data);
 
       } catch (err) {
-
         console.error(err);
       }
-    }
-
-  loadUsers();
+  } loadUsers();
 
     const contats = contatsRef.current;
     const chat = chatRef.current;
@@ -129,6 +137,11 @@ export default function ChatLayout() {
   
   return (
     <>
+      <div className="forms-area">
+        <form action="POST" className="newgroup-form">
+
+        </form>
+      </div>
       <div className="nav">
         <div className="options">
           <a className="nav-opt opt-selected" href="">
@@ -180,6 +193,7 @@ export default function ChatLayout() {
                   <div
                     className="conversation-box"
                     key={user.id}
+                    onClick={() => handleCreateConversation(user.id)}
                   >
 
                     <div className="photo-perfil">
