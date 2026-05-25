@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +26,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
 
     private final ConversationRepository conversationRepository;
-
+    private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
 
     public MessageDTO sendMessage(
@@ -49,24 +49,22 @@ public class MessageService {
                         .orElseThrow();
 
         Message message = new Message();
-
         message.setConversation(conversation);
-
         message.setSender(sender);
-
         message.setContent(dto.content());
-
         message.setCreatedAt(LocalDateTime.now());
-
         message = messageRepository.save(message);
 
-        return new MessageDTO(
+        MessageDTO response = new MessageDTO(
                 message.getId(),
                 sender.getId(),
                 sender.getName(),
                 message.getContent(),
                 message.getCreatedAt()
         );
+
+        messagingTemplate.convertAndSend("/topic/conversation/" + conversationId, response);
+        return response;
     }
 
     public List<MessageDTO>
@@ -78,15 +76,10 @@ public class MessageService {
                 )
                 .stream()
                 .map(message -> new MessageDTO(
-
                         message.getId(),
-
                         message.getSender().getId(),
-
                         message.getSender().getName(),
-
                         message.getContent(),
-
                         message.getCreatedAt()
 
                 ))

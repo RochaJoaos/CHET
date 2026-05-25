@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import './style.css'
 import { getMessagesPage, getUsers, createConversation, getConversations, getMessages, sendMessage} from "../../services/api";
+import { connectSocket,  subscribeToConversation} from "../../services/socket";
 
 export default function ChatLayout() {
   const contatsRef = useRef(null);
@@ -31,6 +32,23 @@ export default function ChatLayout() {
     console.error(err);
   }
 }
+  useEffect(() => { connectSocket(); }, []);
+  
+  useEffect(() => {
+    if (!selectedConversation) return;
+
+    subscribeToConversation(
+      selectedConversation.id,
+
+      (newMessage) => {
+        setMessages((prev) => [
+          ...prev,
+          newMessage
+        ]);
+      }
+    );
+
+  }, [selectedConversation]);
 
   useEffect(() => {
 
@@ -174,11 +192,6 @@ export default function ChatLayout() {
           selectedConversation.id,
           messageInput
         );
-
-      setMessages((prev) => [
-        ...prev,
-        newMessage
-      ]);
       setMessageInput("");
 
     } catch (err) {
