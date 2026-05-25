@@ -34,14 +34,14 @@ export default function ChatLayout() {
 
   useEffect(() => {
 
-    async function loadMessages() {
+    async function loadPageData() {
       try {
         const data = await getMessagesPage();
         setPageData(data);
       } catch (error) {
         console.error(error);
       }
-    } loadMessages();
+    } loadPageData();
 
     async function loadUsers() {
 
@@ -64,7 +64,7 @@ export default function ChatLayout() {
       }
     } loadConversations();
 
-    async function loadMessages() {
+    async function loadConversationMessages() {
       if (!selectedConversation) return;
 
       try {
@@ -75,7 +75,7 @@ export default function ChatLayout() {
       } catch (err) {
         console.error(err);
       }
-    } loadMessages();
+    } loadConversationMessages();
 
     const contats = contatsRef.current;
     const chat = chatRef.current;
@@ -313,7 +313,9 @@ export default function ChatLayout() {
           </div>
           <div className="messages-chat">
             {
+
               messages.map((message) => (
+                console.log(message),
                 <div
                   key={message.id}
 
@@ -323,9 +325,49 @@ export default function ChatLayout() {
                       : "message-box"
                   }
                 >
-                  <p>
-                    {message.content}
-                  </p>
+
+                  <div className="message-img">
+
+                    <div className="user-photo-messages"></div>
+
+                  </div>
+
+                  <div className="message-body">
+
+                    <div className="message-header">
+
+                      <h1 className="message-author">
+
+                        {message.senderName}
+
+                      </h1>
+
+                      <h2 className="message-date">
+
+                        {
+                          new Date(
+                            message.createdAt
+                          ).toLocaleTimeString(
+                            "pt-BR",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            }
+                          )
+                        }
+
+                      </h2>
+
+                    </div>
+
+                    <p className="message-text">
+
+                      {message.content}
+
+                    </p>
+
+                  </div>
+
                 </div>
               ))
             }

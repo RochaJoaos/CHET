@@ -222,6 +222,14 @@ a {
     border-radius: 50px;
 }
 
+.user-photo-messages{
+    width: 40px;
+    height: 40px;
+    margin: 0px 10px 0px 0px;
+    background-color: var(--primary);
+    border-radius: 50px;   
+}
+
 .messages-chat{
     width: 100%;
     height: calc(100% - 120px);
@@ -230,6 +238,39 @@ a {
 p{
     font-size: 18px;
     color: var(--fonts);
+}
+
+.message-box{
+    display: flex;
+    padding: 16px;
+}
+
+.message-box:hover{
+        background-color: var(--dark-03);
+}
+
+.message-header{
+    display: flex;
+    align-items: end;
+}
+
+.message-author{
+    margin: 0px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+    font-size: 16px;
+}
+
+.message-date{
+    margin: 0px;
+    padding-bottom: 5px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--fonts-off);
+}
+
+.message-text{
+    font-size: 14px;
 }
 
 .input-chat{
