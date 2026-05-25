@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import './style.css'
-import { getMessagesPage, getUsers, createConversation, getConversations} from "../../services/api";
+import { getMessagesPage, getUsers, createConversation, getConversations, getMessages, sendMessage} from "../../services/api";
 
 export default function ChatLayout() {
   const contatsRef = useRef(null);
@@ -14,6 +14,8 @@ export default function ChatLayout() {
   const [activeTab, setActiveTab] = useState("conversas");
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState("");
 
   async function handleCreateConversation(userId) {
 
@@ -53,7 +55,6 @@ export default function ChatLayout() {
     } loadUsers();
 
     async function loadConversations() {
-
       try {
         const data = await getConversations();
         setConversations(data);
@@ -62,6 +63,19 @@ export default function ChatLayout() {
         console.error(err);
       }
     } loadConversations();
+
+    async function loadMessages() {
+      if (!selectedConversation) return;
+
+      try {
+        const data = await getMessages(
+          selectedConversation.id
+        );
+        setMessages(data);
+      } catch (err) {
+        console.error(err);
+      }
+    } loadMessages();
 
     const contats = contatsRef.current;
     const chat = chatRef.current;
@@ -146,7 +160,31 @@ export default function ChatLayout() {
       document.removeEventListener("touchmove", touchMove);
       document.removeEventListener("touchend", touchEnd);
     };
-  }, []);
+  }, [selectedConversation]);
+
+  async function handleSendMessage() {
+
+    if (!messageInput.trim()) return;
+    if (!selectedConversation) return;
+
+    try {
+      const newMessage =
+        await sendMessage(
+
+          selectedConversation.id,
+          messageInput
+        );
+
+      setMessages((prev) => [
+        ...prev,
+        newMessage
+      ]);
+      setMessageInput("");
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
   
   return (
     <>
@@ -273,10 +311,36 @@ export default function ChatLayout() {
               </p>
             </div>
           </div>
-          <div className="messages-chat"></div>
+          <div className="messages-chat">
+            {
+              messages.map((message) => (
+                <div
+                  key={message.id}
+
+                  className={
+                    message.senderName === pageData?.name
+                      ? "message-box mine"
+                      : "message-box"
+                  }
+                >
+                  <p>
+                    {message.content}
+                  </p>
+                </div>
+              ))
+            }
+          </div>
           <div className="input-chat">
-            <input type="text" name="" id="input-message" placeholder="digite uma mensagem"/>
-            <button id="btn-message">
+            <input
+              type="text"
+              id="input-message"
+              placeholder="digite uma mensagem"
+              value={messageInput}
+              onChange={(e) =>
+                setMessageInput(e.target.value)
+              }
+            />
+            <button id="btn-message" onClick={handleSendMessage}>
                 <img src="src/assets/icon/send.svg" alt="send" id="icon-btn-message"/>
             </button>
           </div>

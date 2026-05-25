@@ -118,3 +118,58 @@ export async function getConversations() {
 
   return response.json();
 }
+
+export async function getMessages(
+  conversationId
+) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_BASE_URL}/messages/${conversationId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Erro ao carregar mensagens"
+    );
+  }
+
+  return response.json();
+}
+
+export async function sendMessage(
+  conversationId,
+  content
+) {
+
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_BASE_URL}/messages/${conversationId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        content
+      })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Erro ao enviar mensagem"
+    );
+  }
+
+  return response.json();
+}
