@@ -173,3 +173,20 @@ export async function sendMessage(
 
   return response.json();
 }
+
+export async function getUserStatus(userId) {
+
+  const token =
+      localStorage.getItem("token");
+
+  const response = await fetch(
+      `http://localhost:8080/status/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+  );
+
+  return response.json();
+}

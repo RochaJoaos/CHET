@@ -9,6 +9,7 @@ export default function ChatLayout() {
   const dividerRef = useRef(null);
   const overlayRef = useRef(null);
   const mainRef = useRef(null);
+  const messagesEndRef = useRef(null);
 
   const [pageData, setPageData] = useState(null);
   const [users, setUsers] = useState([]);
@@ -17,6 +18,19 @@ export default function ChatLayout() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
+  const [onlineUsers, setOnlineUsers] = useState({});
+
+  async function loadUserStatus() {
+    const statusMap = {};
+
+    for (const conversation of conversations) {
+      if (!conversation.otherUserId)
+          continue;
+      const online = await getUserStatus(conversation.otherUserId);
+      statusMap[ conversation.otherUserId ] = online;
+    }
+    setOnlineUsers(statusMap);
+  }
 
   async function handleCreateConversation(userId) {
 
@@ -31,7 +45,14 @@ export default function ChatLayout() {
 
     console.error(err);
   }
-}
+  }
+
+  useEffect(() => {
+    if (conversations.length > 0) {
+      loadUserStatus();
+    }
+  }, [conversations]);
+
   useEffect(() => { connectSocket(); }, []);
   
   useEffect(() => {
@@ -49,6 +70,14 @@ export default function ChatLayout() {
     );
 
   }, [selectedConversation]);
+
+  useEffect(() => {
+
+    messagesEndRef.current?.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}, [messages]);
 
   useEffect(() => {
 
@@ -258,7 +287,15 @@ export default function ChatLayout() {
                   >
 
                     <div className="photo-perfil">
-                      <div className="status"></div>
+                      <div
+                        className={
+                          onlineUsers[
+                            conversation.otherUserId
+                          ]
+                            ? "status online"
+                            : "status"
+                        }
+                      />
                     </div>
 
                     <div className="info-box">
@@ -326,7 +363,6 @@ export default function ChatLayout() {
           </div>
           <div className="messages-chat">
             {
-
               messages.map((message) => (
                 console.log(message),
                 <div
@@ -384,6 +420,7 @@ export default function ChatLayout() {
                 </div>
               ))
             }
+            <div ref={messagesEndRef}></div>
           </div>
           <div className="input-chat">
             <input

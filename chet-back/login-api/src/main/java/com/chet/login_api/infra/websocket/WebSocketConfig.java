@@ -1,16 +1,21 @@
 package com.chet.login_api.infra.websocket;
 
 import org.springframework.context.annotation.Configuration;
+import com.chet.login_api.infra.security.WebSocketAuthInterceptor;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSocketMessageBroker
 
-public class WebSocketConfig
-        implements WebSocketMessageBrokerConfigurer {
+@RequiredArgsConstructor
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final WebSocketAuthInterceptor webSocketAuthInterceptor;
+
 
     @Override
     public void configureMessageBroker(
@@ -29,13 +34,9 @@ public class WebSocketConfig
             StompEndpointRegistry registry
     ) {
 
-        registry
-                .addEndpoint("/ws")
-
-                .setAllowedOrigins(
-                        "http://localhost:5173"
-                )
-
+        registry.addEndpoint("/ws")
+                .addInterceptors(webSocketAuthInterceptor)
+                .setAllowedOrigins("*")
                 .withSockJS();
     }
 }
