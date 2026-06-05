@@ -60,6 +60,9 @@ public class WebSocketAuthInterceptor
             }
 
             attributes.put("user", user);
+            servletRequest
+                    .getServletRequest()
+                    .setAttribute("user", user);
 
             return true;
         }

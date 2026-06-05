@@ -26,9 +26,11 @@ public class SecurityFilter extends OncePerRequestFilter {
     private UserRepository userRepository;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
+    protected boolean shouldNotFilter(HttpServletRequest request){
         String path = request.getServletPath();
-        return path.equals("/auth/login") || path.equals("/auth/register");
+        return path.equals("/auth/login")
+                || path.equals("/auth/register")
+                || path.startsWith("/ws");
     }
 
     @Override
@@ -72,3 +74,4 @@ public class SecurityFilter extends OncePerRequestFilter {
         return authHeader.replace("Bearer ", "");
     }
 }
+

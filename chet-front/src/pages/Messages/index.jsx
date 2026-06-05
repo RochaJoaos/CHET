@@ -19,7 +19,7 @@ export default function ChatLayout() {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
   const [onlineUsers, setOnlineUsers] = useState({});
-
+ 
   async function loadUserStatus() {
     const statusMap = {};
 
@@ -30,6 +30,7 @@ export default function ChatLayout() {
       statusMap[ conversation.otherUserId ] = online;
     }
     setOnlineUsers(statusMap);
+    console.log(statusMap);
   }
 
   async function handleCreateConversation(userId) {
@@ -38,8 +39,6 @@ export default function ChatLayout() {
 
     const conversation =
       await createConversation(userId);
-
-    console.log(conversation);
 
   } catch (err) {
 
@@ -227,7 +226,6 @@ export default function ChatLayout() {
       console.error(err);
     }
   }
-  
   return (
     <>
       <div className="forms-area">
@@ -240,9 +238,11 @@ export default function ChatLayout() {
           <a className="nav-opt opt-selected" href="">
             Mensagens
           </a>
+          {/*
           <a className="nav-opt" href="">
             Configurações
           </a>
+          */}
           <a className="nav-opt" href="">
             Suporte
           </a>
@@ -270,48 +270,46 @@ export default function ChatLayout() {
           <div className="messages-box">
             <div className="conversation-area"  style={{display: activeTab === "conversas" ? "block" : "none"}}>
               {
-                conversations.map((conversation) => (
+                conversations.map((conversation) => {
 
-                  <div
-                    className={
-                      selectedConversation?.id === conversation.id
-                        ? "conversation-box active-conversation"
-                        : "conversation-box"
-                    }
+                  return (
+                    <div
+                      className={
+                        selectedConversation?.id === conversation.id
+                          ? "conversation-box active-conversation"
+                          : "conversation-box"
+                      }
 
-                    key={conversation.id}
+                      key={conversation.id}
 
-                    onClick={() =>
-                      setSelectedConversation(conversation)
-                    }
-                  >
+                      onClick={() =>
+                        setSelectedConversation(conversation)
+                      }
+                    >
 
-                    <div className="photo-perfil">
-                      <div
-                        className={
-                          onlineUsers[
-                            conversation.otherUserId
-                          ]
-                            ? "status online"
-                            : "status"
-                        }
-                      />
+                      <div className="photo-perfil">
+                        <div
+                          className={
+                            onlineUsers[conversation.id]
+                              ? "status online"
+                              : "status offline"
+                          }
+                        />
+                      </div>
+
+                      <div className="info-box">
+                        <h2 className="conversation-name">
+                          {conversation.name}
+                        </h2>
+
+                        <p className="conversation-desc">
+                          Sem Mensagem
+                        </p>
+                      </div>
+
                     </div>
-
-                    <div className="info-box">
-
-                      <h2 className="conversation-name">
-                        {conversation.name}
-                      </h2>
-
-                      <p className="conversation-desc">
-                        Última mensagem
-                      </p>
-
-                    </div>
-
-                  </div>
-                ))
+                  );
+                })
               }
             </div>
             <div className="contacts-area"  style={{display: activeTab === "contatos" ? "block" : "none"}}>
@@ -324,7 +322,15 @@ export default function ChatLayout() {
                     onClick={() => handleCreateConversation(user.id)}
                   >
                     <div className="photo-perfil">
-                      <div className="status"></div>
+                      <div
+                        className={
+                          onlineUsers[
+                            onlineUsers[user.id]
+                          ]
+                            ? "status online"
+                            : "status offline"
+                        }
+                      />
                     </div>
 
                     <div className="info-box">

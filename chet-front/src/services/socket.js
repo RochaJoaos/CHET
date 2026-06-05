@@ -6,24 +6,20 @@ let stompClient = null;
 
 export function connectSocket(onConnected) {
 
-    const token =
-        localStorage.getItem("token");
+  const token =
+      localStorage.getItem("token");
 
-    const socket = new SockJS(
-    `http://localhost:8080/ws?token=${token}`
-    );
+  const socket = new SockJS(
+      `http://localhost:8080/ws?token=${token}`
+  );
 
   stompClient = new Client({
-
     webSocketFactory: () => socket,
 
     reconnectDelay: 5000,
 
     onConnect: () => {
-
-      console.log(
-        "WebSocket conectado"
-      );
+      console.log("WebSocket conectado");
 
       if (onConnected) {
         onConnected();

@@ -3,32 +3,38 @@ package com.chet.login_api.status.listener;
 import com.chet.login_api.status.service.OnlineUsersService;
 import com.chet.login_api.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import java.security.Principal;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import com.chet.login_api.user.repository.UserRepository;
 
 @Component
 @RequiredArgsConstructor
 public class WebSocketEventListener {
 
     private final OnlineUsersService onlineUsersService;
+    private final UserRepository userRepository;
 
     @EventListener
     public void handleWebSocketConnectListener(
-
             SessionConnectEvent event
     ) {
 
-        var auth = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
+        StompHeaderAccessor accessor =
+                StompHeaderAccessor.wrap(
+                        event.getMessage()
+                );
 
-        if (auth == null) return;
+        Principal principal = accessor.getUser();
 
-        User user = (User) auth.getPrincipal();
+        if (principal == null) return;
+
+        User user = userRepository
+                .findByEmail(principal.getName())
+                .orElseThrow();
 
         onlineUsersService.addUser(user.getId());
 
@@ -39,25 +45,26 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleWebSocketDisconnectListener(
-
             SessionDisconnectEvent event
     ) {
 
-        StompHeaderAccessor headerAccessor =
+        StompHeaderAccessor accessor =
                 StompHeaderAccessor.wrap(
                         event.getMessage()
                 );
 
-        var auth = (User)
-                headerAccessor
-                        .getUser();
+        Principal principal = accessor.getUser();
 
-        if (auth == null) return;
+        if (principal == null) return;
 
-        onlineUsersService.removeUser(auth.getId());
+        User user = userRepository
+                .findByEmail(principal.getName())
+                .orElseThrow();
+
+        onlineUsersService.removeUser(user.getId());
 
         System.out.println(
-                auth.getName() + " ficou OFFLINE"
+                user.getName() + " ficou OFFLINE"
         );
     }
 }
