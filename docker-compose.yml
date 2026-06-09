@@ -1,0 +1,50 @@
+services:
+
+  postgres:
+    image: postgres:17
+
+    container_name: chet-postgres
+
+    restart: always
+
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./chet-back/login-api
+
+    container_name: chet-backend
+
+    restart: always
+
+    depends_on:
+      - postgres
+
+    environment:
+      DB_URL: ${DB_URL}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+
+    ports:
+      - "8080:8080"
+
+  frontend:
+    container_name: chet-frontend
+    build:
+      context: ./chet-front
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+volumes:
+  postgres_data:
