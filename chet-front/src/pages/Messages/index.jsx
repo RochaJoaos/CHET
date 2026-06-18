@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import './style.css'
 import { getMessagesPage, getUsers, createConversation, getConversations, getMessages, sendMessage} from "../../services/api";
 import { connectSocket,  subscribeToConversation} from "../../services/socket";
+import ProfileSettings from "./components/ProfileSettings";
 
 export default function ChatLayout() {
   const contatsRef = useRef(null);
@@ -19,6 +20,8 @@ export default function ChatLayout() {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
   const [onlineUsers, setOnlineUsers] = useState({});
+
+  const [showProfile, setShowProfile] = useState(false);
  
   async function loadUserStatus() {
     const statusMap = {};
@@ -76,7 +79,7 @@ export default function ChatLayout() {
         behavior: "smooth"
     });
 
-}, [messages]);
+  }, [messages]);
 
   useEffect(() => {
 
@@ -226,34 +229,28 @@ export default function ChatLayout() {
       console.error(err);
     }
   }
+
   return (
     <>
-      <div className="forms-area">
-        <form action="POST" className="newgroup-form">
-
-        </form>
-      </div>
       <div className="nav">
         <div className="options">
           <a className="nav-opt opt-selected" href="">
             Mensagens
           </a>
-          {/*
           <a className="nav-opt" href="">
             Configurações
           </a>
-          */}
           <a className="nav-opt" href="">
             Suporte
           </a>
         </div>
         <div className="options">
-          <a className="nav-account" href="">
+
+          <a className="nav-account" onClick={(e) => { e.preventDefault(); setShowProfile(true); }}>
             {pageData ? pageData.name : "..."}
           </a>
         </div>
       </div>
-
       <div className="main" ref={mainRef}>
         <div className="contats" ref={contatsRef}>
           <div className="contats-opt">
@@ -388,17 +385,9 @@ export default function ChatLayout() {
                   </div>
 
                   <div className="message-body">
-
                     <div className="message-header">
-
-                      <h1 className="message-author">
-
-                        {message.senderName}
-
-                      </h1>
-
+                      <h1 className="message-author">{message.senderName}</h1>
                       <h2 className="message-date">
-
                         {
                           new Date(
                             message.createdAt
@@ -410,19 +399,12 @@ export default function ChatLayout() {
                             }
                           )
                         }
-
                       </h2>
-
                     </div>
-
                     <p className="message-text">
-
                       {message.content}
-
                     </p>
-
                   </div>
-
                 </div>
               ))
             }
@@ -445,6 +427,12 @@ export default function ChatLayout() {
         </div>
       </div>
       <div id="drag-overlay" ref={overlayRef}></div>
+      {/* perfil como overlay no final */}
+        {showProfile && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 999 }}>
+            <ProfileSettings onLogout={() => setShowProfile(false)} />
+          </div>
+      )}
     </>
   );
 }

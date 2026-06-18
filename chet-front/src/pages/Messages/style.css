@@ -11,6 +11,24 @@
     --divider-w:      5px;
     --divider-color:  #1E1E1E;
     --divider-active: #5E4BA6;
+
+    --bg: #00000070;
+    --sidebar: #2b2d31;
+    --card: #313338;
+    --card-alt: #383a40;
+    --input: #1e1f22;
+    --border: #3f4147;
+    --accent: #795fd6;
+    --accent-hover: #5E4BA6;
+
+    --danger: #ed4245;
+    --danger-hover: #c03537;
+
+    --text-primary: #f2f3f5;
+    --text-secondary: #b5bac1;
+    --text-muted: #87898c;
+
+    --green: #23a55a;
 }
 
 body {
@@ -390,12 +408,10 @@ p{
 /* FORM AREA */
 
 .forms-area{
-    display: none;
     z-index: 10;
     position: fixed;
     width: 100vw;
     height: 100vh;
-    background-color: #00000070;
 }
 
 .newgroup-form{
