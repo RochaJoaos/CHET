@@ -10,10 +10,10 @@ const NAV_ITEMS = [
 
 export default function ProfileSettings({ onLogout }) {
   const [activeTab, setActiveTab] = useState("profile");
-  const [displayName, setDisplayName] = useState("Camarada-san");
+  const [displayName, setDisplayName] = useState("Username");
   const [bio, setBio] = useState("");
-  const [username, setUsername] = useState("camaradasan");
-  const [email, setEmail] = useState("camarada@example.com");
+  const [username, setUsername] = useState("username@example.com");
+  const [email, setEmail] = useState("username@example.com");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [avatar, setAvatar] = useState(null);

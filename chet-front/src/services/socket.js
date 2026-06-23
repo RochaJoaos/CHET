@@ -65,3 +65,21 @@ export function subscribeToConversation(
     }
   );
 }
+
+export function subscribeToStatus(
+  onStatusReceived
+) {
+
+  if (!stompClient) return;
+
+  stompClient.subscribe(
+    "/topic/status",
+    (message) => {
+
+      const body =
+        JSON.parse(message.body);
+
+      onStatusReceived(body);
+    }
+  );
+}

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import './style.css'
 import { getMessagesPage, getUsers, createConversation, getConversations, getMessages, sendMessage} from "../../services/api";
-import { connectSocket,  subscribeToConversation} from "../../services/socket";
+import { connectSocket,  subscribeToConversation, subscribeToStatus} from "../../services/socket";
 import ProfileSettings from "./components/ProfileSettings";
 
 export default function ChatLayout() {
@@ -55,7 +55,23 @@ export default function ChatLayout() {
     }
   }, [conversations]);
 
-  useEffect(() => { connectSocket(); }, []);
+useEffect(() => {
+
+  connectSocket(() => {
+    subscribeToStatus((status) => {
+      console.log(
+        "STATUS RECEBIDO:",
+        status
+      );
+      setOnlineUsers((prev) => ({
+        ...prev,
+        [status.userId]:
+          status.status === "ONLINE"
+      }));
+    });
+  });
+
+}, []);
   
   useEffect(() => {
     if (!selectedConversation) return;
@@ -359,7 +375,7 @@ export default function ChatLayout() {
                 {
                   selectedConversation
                     ? selectedConversation.name
-                    : "Selecione uma conversa"
+                    : " "
                 }
               </p>
             </div>
