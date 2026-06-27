@@ -340,16 +340,20 @@ useEffect(() => {
         </div>
 
         <div className="chat" ref={chatRef}>
-          <div className="not-selected-message">
-            <div className="item-not-selected-message">
-              <img className="icon-not-selected-message" src="src/assets/imgs/not-messages-icon-frog.svg" alt="popo" />
-              <h1 className="title-not-selected-message">Comece uma conversa!</h1>
-              <div>
-                <input type="button" value="Adicionar Amigo" className="btn-not-selected-message"/>
-                <input type="button" value="Criar grupo" className="btn-not-selected-message"/> 
+          {!selectedConversation && (
+            <div className="not-selected-message">
+              <div className="item-not-selected-message">
+                <img className="icon-not-selected-message" src="src/assets/imgs/not-messages-icon-frog.svg" alt="popo"/>
+                <h1 className="title-not-selected-message">
+                  Comece uma conversa!
+                </h1>
+                <div>
+                  <input type="button" value="Adicionar Amigo" className="btn-not-selected-message"/>
+                  <input type="button" value="Criar grupo" className="btn-not-selected-message"/>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           <div className="username-chat">
             <div className="user-area">
               <div className="user-photo"></div>
@@ -375,11 +379,8 @@ useEffect(() => {
                       : "message-box"
                   }
                 >
-
                   <div className="message-img">
-
                     <div className="user-photo-messages"></div>
-
                   </div>
 
                   <div className="message-body">
