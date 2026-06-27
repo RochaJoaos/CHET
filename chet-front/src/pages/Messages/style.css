@@ -1,6 +1,7 @@
 :root {
     --fonts:     #e6e5e5;
     --fonts-off: #b3b3b3;
+    --font-button: #b8a6f7;
     --primary:   #5E4BA6;
     --second:    #9c9c9c;
     --dark-01:   #1E1E1E;
@@ -13,6 +14,7 @@
     --divider-active: #383a40;
 
     --bg: #00000070;
+    --bg-button: #382c63;
     --sidebar: #2b2d31;
     --card: #313338;
     --card-alt: #383a40;
@@ -236,6 +238,7 @@ a {
     overflow-y: auto;
     margin: 0 20px 0px 5px;
     border-radius: 8px;
+    position: relative;
 }
 
 .username{
@@ -355,6 +358,54 @@ p{
 
 #icon-btn-message{
     width: 18px;
+}
+
+/* CHAT - NOT SELETED MESSAGE */
+
+.not-selected-message{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--dark-02);
+}
+
+.item-not-selected-message{
+    width: 500px;
+    padding: 40px;
+    background-color: var(--dark-03);
+    border-radius: 20px;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.icon-not-selected-message{
+    width: 260px;
+}
+
+.title-not-selected-message{
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+.btn-not-selected-message{
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: var(--bg-button);
+    color: var(--font-button);
+    border: none;
+    border-radius: 10px;
+    font-family: "Outfit", sans-serif;
+    font-size: 18px;
+    cursor: pointer;
+
+}
+
+.btn-not-selected-message:hover{
+    color: var(--fonts);
+    background-color: var(--primary);
 }
 
 /* ── DIVIDER ── */

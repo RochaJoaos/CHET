@@ -6,7 +6,6 @@ import java.util.UUID;
 
 public record UserStatusDTO(
         UUID userId,
-        String name,
         UserStatus status
 ) {
 }

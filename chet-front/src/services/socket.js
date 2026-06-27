@@ -1,5 +1,4 @@
 import SockJS from "sockjs-client";
-
 import { Client } from "@stomp/stompjs";
 
 let stompClient = null;
@@ -68,9 +67,11 @@ export function subscribeToConversation(
 
 export function subscribeToStatus(
   onStatusReceived
-) {
-
-  if (!stompClient) return;
+){
+  if (!stompClient?.connected) {
+    console.error("STOMP ainda não conectado");
+    return;
+  }
 
   stompClient.subscribe(
     "/topic/status",

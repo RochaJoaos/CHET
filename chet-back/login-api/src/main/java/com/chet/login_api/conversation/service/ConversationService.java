@@ -20,9 +20,7 @@ import java.util.UUID;
 public class ConversationService {
 
     private final ConversationRepository conversationRepository;
-
     private final ConversationParticipantRepository participantRepository;
-
     private final UserRepository userRepository;
 
     public Conversation createPrivateConversation(UUID targetUserId) {
@@ -161,26 +159,22 @@ public class ConversationService {
                             conversation.getId()
                     );
 
+            User otherUser = null;
             String conversationName = "Conversa";
 
             // conversa privada
             if (conversation.getType().equals("PRIVATE")) {
-
                 for (ConversationParticipant p : participants) {
-
                     if (!p.getUser()
                             .getId()
                             .equals(currentUser.getId())) {
 
-                        conversationName =
-                                p.getUser().getName();
-
+                        otherUser = p.getUser();
+                        conversationName = otherUser.getName();
                         break;
                     }
                 }
-
             } else {
-
                 // grupo
                 conversationName = conversation.getName();
             }
@@ -188,7 +182,13 @@ public class ConversationService {
             conversations.add(
                     new ConversationListItemDTO(
                             conversation.getId(),
-                            conversationName
+                            conversationName,
+                            otherUser != null
+                                    ? otherUser.getId()
+                                    : null,
+                            otherUser != null
+                                    ? otherUser.getStatus()
+                                    : null
                     )
             );
         }

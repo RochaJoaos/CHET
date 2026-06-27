@@ -47,7 +47,6 @@ public class WebSocketEventListener {
                     "/topic/status",
                     new UserStatusDTO(
                             user.getId(),
-                            user.getName(),
                             user.getStatus()
                     )
             );
@@ -84,7 +83,6 @@ public class WebSocketEventListener {
                     "/topic/status",
                     new UserStatusDTO(
                             user.getId(),
-                            user.getName(),
                             user.getStatus()
                     )
             );

@@ -19,55 +19,34 @@ export default function ChatLayout() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
-  const [onlineUsers, setOnlineUsers] = useState({});
 
   const [showProfile, setShowProfile] = useState(false);
- 
-  async function loadUserStatus() {
-    const statusMap = {};
-
-    for (const conversation of conversations) {
-      if (!conversation.otherUserId)
-          continue;
-      const online = await getUserStatus(conversation.otherUserId);
-      statusMap[ conversation.otherUserId ] = online;
-    }
-    setOnlineUsers(statusMap);
-    console.log(statusMap);
-  }
 
   async function handleCreateConversation(userId) {
+    try {
+      const conversation =
+        await createConversation(userId);
 
-  try {
-
-    const conversation =
-      await createConversation(userId);
-
-  } catch (err) {
-
-    console.error(err);
-  }
-  }
-
-  useEffect(() => {
-    if (conversations.length > 0) {
-      loadUserStatus();
+    } catch (err) {
+      console.error(err);
     }
-  }, [conversations]);
+  }
 
 useEffect(() => {
 
   connectSocket(() => {
     subscribeToStatus((status) => {
-      console.log(
-        "STATUS RECEBIDO:",
-        status
-      );
-      setOnlineUsers((prev) => ({
-        ...prev,
-        [status.userId]:
-          status.status === "ONLINE"
-      }));
+        console.log(status);
+        setConversations((prev) =>
+            prev.map((conversation) =>
+                conversation.otherUserId === status.userId
+                    ? {
+                        ...conversation,
+                        status: status.status
+                    }
+                    : conversation
+            )
+        );
     });
   });
 
@@ -303,13 +282,12 @@ useEffect(() => {
                       <div className="photo-perfil">
                         <div
                           className={
-                            onlineUsers[conversation.id]
-                              ? "status online"
-                              : "status offline"
+                            conversation.status === "ONLINE"
+                            ? "status online"
+                            : "status offline"
                           }
                         />
                       </div>
-
                       <div className="info-box">
                         <h2 className="conversation-name">
                           {conversation.name}
@@ -336,13 +314,7 @@ useEffect(() => {
                   >
                     <div className="photo-perfil">
                       <div
-                        className={
-                          onlineUsers[
-                            onlineUsers[user.id]
-                          ]
-                            ? "status online"
-                            : "status offline"
-                        }
+                        className={"status offline"}
                       />
                     </div>
 
@@ -368,6 +340,16 @@ useEffect(() => {
         </div>
 
         <div className="chat" ref={chatRef}>
+          <div className="not-selected-message">
+            <div className="item-not-selected-message">
+              <img className="icon-not-selected-message" src="src/assets/imgs/not-messages-icon-frog.svg" alt="popo" />
+              <h1 className="title-not-selected-message">Comece uma conversa!</h1>
+              <div>
+                <input type="button" value="Adicionar Amigo" className="btn-not-selected-message"/>
+                <input type="button" value="Criar grupo" className="btn-not-selected-message"/> 
+              </div>
+            </div>
+          </div>
           <div className="username-chat">
             <div className="user-area">
               <div className="user-photo"></div>
