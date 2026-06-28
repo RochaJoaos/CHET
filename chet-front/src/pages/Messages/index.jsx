@@ -4,17 +4,14 @@ import { getMessagesPage, getUsers, createConversation, getConversations, getMes
 import { connectSocket,  subscribeToConversation, subscribeToStatus} from "../../services/socket";
 import ProfileSettings from "./components/ProfileSettings";
 
-// 🔥 O TRUQUE DE MESTRE: Esta função desempacota a mensagem invisível
 const parseMessageContent = (msg) => {
     if (!msg) return { text: "", isEdited: false, replyTo: null, isDeleted: false };
     
-    // Se foi apagada no banco
     if (msg.content === "🚫 Mensagem apagada") {
         return { text: "🚫 Mensagem apagada", isEdited: false, replyTo: null, isDeleted: true };
     }
     
     try {
-        // Tenta ler o pacote invisível (JSON)
         const parsed = JSON.parse(msg.content);
         if (parsed && typeof parsed === 'object' && parsed.text) {
             return {
@@ -24,18 +21,16 @@ const parseMessageContent = (msg) => {
                 isDeleted: false
             };
         }
-    } catch (e) {
-        // Se der erro, significa que é uma mensagem antiga/normal de texto puro, apenas retorna ela!
-    }
+    } catch (e) {}
     return { text: msg.content, isEdited: false, replyTo: null, isDeleted: false };
 };
 
 export default function ChatLayout() {
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editContent, setEditContent] = useState("");
-  
-  // 🔥 NOVO ESTADO: Guarda a mensagem que você está respondendo
   const [replyingTo, setReplyingTo] = useState(null);
+  const [chatPreviews, setChatPreviews] = useState({});
+  const [toast, setToast] = useState(null);
   
   const contatsRef = useRef(null);
   const chatRef = useRef(null);
@@ -51,10 +46,15 @@ export default function ChatLayout() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
-
   const [showProfile, setShowProfile] = useState(false);
 
-  // 🚀 CAÇADOR DE TOKEN AUTOMÁTICO
+  const selectedConvRef = useRef(selectedConversation);
+  const pageDataRef = useRef(pageData);
+  const activeSubscriptions = useRef(new Set());
+
+  useEffect(() => { selectedConvRef.current = selectedConversation; }, [selectedConversation]);
+  useEffect(() => { pageDataRef.current = pageData; }, [pageData]);
+
   const getAuthToken = () => {
     let token = localStorage.getItem("token") || localStorage.getItem("jwt") || localStorage.getItem("access_token");
     if (token) return token.replace(/['"]+/g, '');
@@ -75,9 +75,7 @@ export default function ChatLayout() {
   async function handleCreateConversation(userId) {
     try {
       await createConversation(userId);
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) {}
   }
 
   useEffect(() => {
@@ -93,23 +91,101 @@ export default function ChatLayout() {
       });
     });
   }, []);
-  
-  useEffect(() => {
-    if (!selectedConversation) return;
 
-    subscribeToConversation(
-      selectedConversation.id,
-      (incomingMessage) => {
-        setMessages((prev) => {
-          const messageExists = prev.find(m => m.id === incomingMessage.id);
-          if (messageExists) {
-            return prev.map(m => m.id === incomingMessage.id ? incomingMessage : m);
-          } else {
-            return [...prev, incomingMessage];
-          }
+  useEffect(() => {
+    async function loadInitialData() {
+        try {
+            const dataPage = await getMessagesPage();
+            setPageData(dataPage);
+            
+            const dataUsers = await getUsers();
+            setUsers(dataUsers);
+            
+            const dataConv = await getConversations();
+            setConversations(dataConv);
+            
+            const previews = {};
+            for (let conv of dataConv) {
+                try {
+                    const msgs = await getMessages(conv.id);
+                    if (msgs && msgs.length > 0) {
+                        const lastMsg = msgs[msgs.length - 1];
+                        const parsed = parseMessageContent(lastMsg);
+                        previews[conv.id] = {
+                            text: parsed.isDeleted ? "🚫 Mensagem apagada" : parsed.text,
+                            unreadCount: 0
+                        };
+                    }
+                } catch (e) {}
+            }
+            setChatPreviews(previews);
+        } catch (err) {}
+    }
+    loadInitialData();
+  }, []);
+
+  useEffect(() => {
+    conversations.forEach(conv => {
+        if (!activeSubscriptions.current.has(conv.id)) {
+            activeSubscriptions.current.add(conv.id);
+            subscribeToConversation(conv.id, (incomingMessage) => {
+                const parsed = parseMessageContent(incomingMessage);
+                const isMine = incomingMessage.senderName === pageDataRef.current?.name;
+                const isSelected = selectedConvRef.current?.id === conv.id;
+
+                setChatPreviews(prev => {
+                    const currentCount = prev[conv.id]?.unreadCount || 0;
+                    const newCount = (!isMine && !isSelected) ? currentCount + 1 : 0;
+                    
+                    return {
+                        ...prev,
+                        [conv.id]: {
+                            text: parsed.isDeleted ? "🚫 Mensagem apagada" : parsed.text,
+                            unreadCount: newCount
+                        }
+                    };
+                });
+
+                if (!isMine && !parsed.isDeleted && !parsed.isEdited && !isSelected) {
+                    setToast(`Você recebeu uma mensagem de: ${incomingMessage.senderName}`);
+                    setTimeout(() => setToast(null), 4000);
+                }
+
+                if (isSelected) {
+                    setMessages((prev) => {
+                        const exists = prev.find(m => m.id === incomingMessage.id);
+                        if (exists) return prev.map(m => m.id === incomingMessage.id ? incomingMessage : m);
+                        return [...prev, incomingMessage];
+                    });
+                }
+            });
+        }
+    });
+  }, [conversations]);
+
+  useEffect(() => {
+    if (selectedConversation) {
+        setChatPreviews(prev => {
+            if (prev[selectedConversation.id]) {
+                return {
+                    ...prev,
+                    [selectedConversation.id]: {
+                        ...prev[selectedConversation.id],
+                        unreadCount: 0
+                    }
+                };
+            }
+            return prev;
         });
-      }
-    );
+
+        async function loadConversationMessages() {
+            try {
+                const data = await getMessages(selectedConversation.id);
+                setMessages(data);
+            } catch (err) {}
+        }
+        loadConversationMessages();
+    }
   }, [selectedConversation]);
 
   useEffect(() => {
@@ -117,43 +193,6 @@ export default function ChatLayout() {
   }, [messages]);
 
   useEffect(() => {
-    async function loadPageData() {
-      try {
-        const data = await getMessagesPage();
-        setPageData(data);
-      } catch (error) {
-        console.error(error);
-      }
-    } loadPageData();
-
-    async function loadUsers() {
-      try {
-        const data = await getUsers();
-        setUsers(data);
-      } catch (err) {
-          console.error(err);
-      }
-    } loadUsers();
-
-    async function loadConversations() {
-      try {
-        const data = await getConversations();
-        setConversations(data);
-      } catch (err) {
-        console.error(err);
-      }
-    } loadConversations();
-
-    async function loadConversationMessages() {
-      if (!selectedConversation) return;
-      try {
-        const data = await getMessages(selectedConversation.id);
-        setMessages(data);
-      } catch (err) {
-        console.error(err);
-      }
-    } loadConversationMessages();
-
     const contats = contatsRef.current;
     const chat = chatRef.current;
     const divider = dividerRef.current;
@@ -233,19 +272,15 @@ export default function ChatLayout() {
       document.removeEventListener("touchmove", touchMove);
       document.removeEventListener("touchend", touchEnd);
     };
-  }, [selectedConversation]);
-
-  // --- FUNÇÕES DE MENSAGEM (ENVIAR, EDITAR, APAGAR) ---
+  }, []);
 
   async function handleSendMessage() {
     if (!messageInput.trim()) return;
     if (!selectedConversation) return;
 
     try {
-      // Criação do pacote para enviar para o Java
       const payload = { text: messageInput };
       
-      // Se estiver respondendo alguém, embute isso no pacote
       if (replyingTo) {
           const parsedReply = parseMessageContent(replyingTo);
           payload.replyTo = {
@@ -254,19 +289,15 @@ export default function ChatLayout() {
           };
       }
 
-      // Envia como String JSON (o Java acha que é um texto normal)
       await sendMessage(selectedConversation.id, JSON.stringify(payload));
       
       setMessageInput("");
-      setReplyingTo(null); // Limpa o modo de resposta
-    } catch (err) {
-      console.error(err);
-    }
+      setReplyingTo(null); 
+    } catch (err) {}
   }
 
   const startEditing = (msg) => {
     setEditingMessageId(msg.id);
-    // Pega só o texto limpo para editar
     setEditContent(parseMessageContent(msg).text); 
   };
 
@@ -277,14 +308,13 @@ export default function ChatLayout() {
       const msg = messages.find(m => m.id === messageId);
       const parsedOld = parseMessageContent(msg);
 
-      // Pacote de edição (mantendo as respostas antigas se houver)
       const payload = {
           text: editContent,
           isEdited: true,
           replyTo: parsedOld.replyTo 
       };
 
-      const response = await fetch(`http://localhost:8080/messages/${messageId}`, {
+      await fetch(`http://localhost:8080/messages/${messageId}`, {
           method: 'PUT',
           headers: { 
             'Content-Type': 'application/json',
@@ -293,33 +323,20 @@ export default function ChatLayout() {
           body: JSON.stringify({ content: JSON.stringify(payload) }) 
       });
 
-      if (response.ok) {
-          setEditingMessageId(null);
-      } else {
-          console.error("Backend recusou:", await response.text());
-      }
-    } catch (error) {
-        console.error("Erro ao editar:", error);
-    }
+      setEditingMessageId(null);
+    } catch (error) {}
   };
 
   const handleDeleteMessage = async (messageId) => {
-    if (!window.confirm("Tem certeza que deseja apagar esta mensagem?")) return;
     try {
       const token = getAuthToken(); 
-      const response = await fetch(`http://localhost:8080/messages/${messageId}`, {
+      await fetch(`http://localhost:8080/messages/${messageId}`, {
           method: 'DELETE',
           headers: { 
             'Authorization': `Bearer ${token}`
           }
       });
-
-      if (!response.ok) {
-          console.error("Backend recusou:", await response.text());
-      }
-    } catch (error) {
-        console.error("Erro ao apagar:", error);
-    }
+    } catch (error) {}
   };
 
   return (
@@ -363,9 +380,25 @@ export default function ChatLayout() {
                     <div className="photo-perfil">
                       <div className={conversation.status === "ONLINE" ? "status online" : "status offline"}/>
                     </div>
-                    <div className="info-box">
+                    <div className="info-box" style={{ position: 'relative', width: '100%', paddingRight: '35px' }}>
                       <h2 className="conversation-name">{conversation.name}</h2>
-                      <p className="conversation-desc">Sem Mensagem</p>
+                      <p className="conversation-desc" style={{
+                          color: chatPreviews[conversation.id]?.unreadCount > 0 ? '#a855f7' : '#9ca3af',
+                          fontWeight: chatPreviews[conversation.id]?.unreadCount > 0 ? 'bold' : 'normal',
+                          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px'
+                      }}>
+                          {chatPreviews[conversation.id]?.text || "Sem Mensagem"}
+                      </p>
+                      {chatPreviews[conversation.id]?.unreadCount > 0 && (
+                          <div style={{
+                              position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                              minWidth: '20px', height: '20px', borderRadius: '10px', background: '#a855f7',
+                              color: 'white', fontSize: '12px', fontWeight: 'bold', display: 'flex',
+                              alignItems: 'center', justifyContent: 'center', padding: '0 6px'
+                          }}>
+                              {chatPreviews[conversation.id].unreadCount}
+                          </div>
+                      )}
                     </div>
                   </div>
                 ))
@@ -418,7 +451,6 @@ export default function ChatLayout() {
           <div className="messages-chat">
             {
               messages.map((message) => {
-                // Desempacota as configurações da mensagem!
                 const { text, isEdited, replyTo, isDeleted } = parseMessageContent(message);
 
                 return (
@@ -435,7 +467,6 @@ export default function ChatLayout() {
                         </h2>
                       </div>
                       
-                      {/* --- MODO EDIÇÃO ATIVO --- */}
                       {editingMessageId === message.id ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "5px" }}>
                           <input
@@ -455,7 +486,6 @@ export default function ChatLayout() {
                         </div>
                       ) : (
                         <div>
-                          {/* VISUAL DA MENSAGEM RESPONDIDA */}
                           {replyTo && !isDeleted && (
                               <div style={{
                                   background: message.senderName === pageData?.name ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.1)",
@@ -475,13 +505,11 @@ export default function ChatLayout() {
 
                           <p className="message-text">
                             {text}
-                            {/* TAG DE EDITADO */}
                             {isEdited && !isDeleted && (
                               <span style={{ fontSize: '10px', marginLeft: '6px', color: '#9ca3af', fontStyle: 'italic' }}>(editado)</span>
                             )}
                           </p>
                           
-                          {/* BOTÕES DE AÇÃO (Responder / Editar / Apagar) */}
                           {!isDeleted && (
                             <div style={{ display: "flex", gap: "12px", fontSize: "11px", marginTop: "8px", opacity: 0.7 }}>
                               <span style={{ cursor: "pointer", color: "#3b82f6", fontWeight: "bold" }} onClick={() => setReplyingTo(message)}>
@@ -510,10 +538,7 @@ export default function ChatLayout() {
             <div ref={messagesEndRef}></div>
           </div>
           
-          {/* CAIXA DE INPUT (Com a barrinha de responder) */}
           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', position: 'relative' }}>
-            
-            {/* PRÉVIA DA RESPOSTA NO INPUT */}
             {replyingTo && (
                 <div style={{ 
                     background: '#374151', padding: '10px 15px', display: 'flex', justifyContent: 'space-between', 
@@ -548,9 +573,19 @@ export default function ChatLayout() {
         </div>
       </div>
       <div id="drag-overlay" ref={overlayRef}></div>
-        {showProfile && (
+      {showProfile && (
           <div style={{ position: "fixed", inset: 0, zIndex: 999 }}>
             <ProfileSettings onLogout={() => setShowProfile(false)} />
+          </div>
+      )}
+      {toast && (
+          <div style={{
+              position: 'fixed', bottom: '30px', right: '30px',
+              background: '#a855f7', color: 'white', padding: '15px 25px',
+              borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+              zIndex: 1000, fontWeight: 'bold', fontSize: '14px'
+          }}>
+              {toast}
           </div>
       )}
     </>
