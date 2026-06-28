@@ -11,14 +11,13 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class WebSocketAuthInterceptor
-        implements HandshakeInterceptor {
+public class WebSocketAuthInterceptor implements HandshakeInterceptor {
 
     private final TokenService tokenService;
-
     private final UserRepository userRepository;
 
     @Override
@@ -44,20 +43,15 @@ public class WebSocketAuthInterceptor
                 return false;
             }
 
-            String email =
-                    tokenService.validateToken(token);
+            String id = tokenService.validateToken(token);
 
-            if (email == null) {
+            if (id == null) {
                 return false;
             }
 
             User user = userRepository
-                    .findByEmail(email)
-                    .orElse(null);
-
-            if (user == null) {
-                return false;
-            }
+                    .findById(UUID.fromString(id))
+                    .orElseThrow(() -> new RuntimeException("User Not Found"));
 
             attributes.put("user", user);
             servletRequest

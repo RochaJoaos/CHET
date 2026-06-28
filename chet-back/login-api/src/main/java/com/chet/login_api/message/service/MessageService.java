@@ -28,8 +28,7 @@ public class MessageService {
     private final UserRepository userRepository;
 
     public MessageDTO sendMessage(UUID conversationId, SendMessageDTO dto) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User sender = userRepository.findByEmail(email).orElseThrow();
+        User sender = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Conversation conversation = conversationRepository.findById(conversationId).orElseThrow();
 
         Message message = new Message();
@@ -64,7 +63,7 @@ public class MessageService {
                 .toList();
     }
 
-    // 🔥 NOVOS MÉTODOS PARA EDITAR E APAGAR 🔥
+    // NOVOS MÉTODOS PARA EDITAR E APAGAR
 
     public MessageDTO editMessage(UUID messageId, SendMessageDTO dto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -114,7 +113,7 @@ public class MessageService {
                 messageId, 
                 message.getSender().getId(),
                 message.getSender().getName(),
-                "🚫 Mensagem apagada",
+                "Mensagem apagada",
                 message.getCreatedAt()
         );
         

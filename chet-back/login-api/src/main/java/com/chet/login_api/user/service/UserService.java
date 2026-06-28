@@ -34,18 +34,16 @@ public class UserService {
     }
 
     private User getAuthenticatedUser() {
+
         var auth = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
 
-        if (auth == null) {
+        if (auth == null || !(auth.getPrincipal() instanceof User)) {
             throw new RuntimeException("Usuário não autenticado.");
         }
 
-        return repository
-                .findByEmail(auth.getName())
-                .orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado."));
+        return (User) auth.getPrincipal();
     }
 
     public UserProfileDTO getProfile() {

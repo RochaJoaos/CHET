@@ -15,19 +15,12 @@ import org.springframework.web.bind.annotation.*;
 
 public class MessagesController {
 
-    private final UserRepository userRepository;
-
     @GetMapping
     public MessagesPageDTO loadMessagesPage(
             Authentication authentication
     ) {
 
-        String email = authentication.getName();
-
-        User user = userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado"));
+        User user = (User) authentication.getPrincipal();
 
         return new MessagesPageDTO(
                 user.getName(),

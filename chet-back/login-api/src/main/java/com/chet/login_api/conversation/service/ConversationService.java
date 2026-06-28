@@ -33,12 +33,7 @@ public class ConversationService {
             throw new RuntimeException("Auth está null");
         }
 
-        String email = auth.getName();
-
-        User currentUser = userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado"));
+        User currentUser = (User) auth.getPrincipal();
 
         User targetUser = userRepository
                 .findById(targetUserId)
@@ -133,11 +128,7 @@ public class ConversationService {
             throw new RuntimeException("Auth null");
         }
 
-        String email = auth.getName();
-
-        User currentUser = userRepository
-                .findByEmail(email)
-                .orElseThrow();
+        User currentUser = (User) auth.getPrincipal();
 
         var participations =
                 participantRepository.findByUserId(
