@@ -4,17 +4,14 @@ import { getMessagesPage, getUsers, createConversation, getConversations, getMes
 import { connectSocket,  subscribeToConversation, subscribeToStatus} from "../../services/socket";
 import ProfileSettings from "./components/ProfileSettings";
 
-// 🔥 O TRUQUE DE MESTRE: Esta função desempacota a mensagem invisível
 const parseMessageContent = (msg) => {
     if (!msg) return { text: "", isEdited: false, replyTo: null, isDeleted: false };
     
-    // Se foi apagada no banco
     if (msg.content === "🚫 Mensagem apagada") {
         return { text: "🚫 Mensagem apagada", isEdited: false, replyTo: null, isDeleted: true };
     }
     
     try {
-        // Tenta ler o pacote invisível (JSON)
         const parsed = JSON.parse(msg.content);
         if (parsed && typeof parsed === 'object' && parsed.text) {
             return {
@@ -24,17 +21,13 @@ const parseMessageContent = (msg) => {
                 isDeleted: false
             };
         }
-    } catch (e) {
-        // Se der erro, significa que é uma mensagem antiga/normal de texto puro, apenas retorna ela!
-    }
+    } catch (e) {}
     return { text: msg.content, isEdited: false, replyTo: null, isDeleted: false };
 };
 
 export default function ChatLayout() {
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editContent, setEditContent] = useState("");
-  
-  // 🔥 NOVO ESTADO: Guarda a mensagem que você está respondendo
   const [replyingTo, setReplyingTo] = useState(null);
   
   const contatsRef = useRef(null);
@@ -51,10 +44,8 @@ export default function ChatLayout() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
-
   const [showProfile, setShowProfile] = useState(false);
 
-  // 🚀 CAÇADOR DE TOKEN AUTOMÁTICO
   const getAuthToken = () => {
     let token = localStorage.getItem("token") || localStorage.getItem("jwt") || localStorage.getItem("access_token");
     if (token) return token.replace(/['"]+/g, '');
@@ -235,17 +226,15 @@ export default function ChatLayout() {
     };
   }, [selectedConversation]);
 
-  // --- FUNÇÕES DE MENSAGEM (ENVIAR, EDITAR, APAGAR) ---
+  // --- FUNÇÕES DE MENSAGEM ---
 
   async function handleSendMessage() {
     if (!messageInput.trim()) return;
     if (!selectedConversation) return;
 
     try {
-      // Criação do pacote para enviar para o Java
       const payload = { text: messageInput };
       
-      // Se estiver respondendo alguém, embute isso no pacote
       if (replyingTo) {
           const parsedReply = parseMessageContent(replyingTo);
           payload.replyTo = {
@@ -254,11 +243,10 @@ export default function ChatLayout() {
           };
       }
 
-      // Envia como String JSON (o Java acha que é um texto normal)
       await sendMessage(selectedConversation.id, JSON.stringify(payload));
       
       setMessageInput("");
-      setReplyingTo(null); // Limpa o modo de resposta
+      setReplyingTo(null); 
     } catch (err) {
       console.error(err);
     }
@@ -266,7 +254,6 @@ export default function ChatLayout() {
 
   const startEditing = (msg) => {
     setEditingMessageId(msg.id);
-    // Pega só o texto limpo para editar
     setEditContent(parseMessageContent(msg).text); 
   };
 
@@ -277,7 +264,6 @@ export default function ChatLayout() {
       const msg = messages.find(m => m.id === messageId);
       const parsedOld = parseMessageContent(msg);
 
-      // Pacote de edição (mantendo as respostas antigas se houver)
       const payload = {
           text: editContent,
           isEdited: true,
@@ -304,7 +290,6 @@ export default function ChatLayout() {
   };
 
   const handleDeleteMessage = async (messageId) => {
-    if (!window.confirm("Tem certeza que deseja apagar esta mensagem?")) return;
     try {
       const token = getAuthToken(); 
       const response = await fetch(`http://localhost:8080/messages/${messageId}`, {
@@ -418,7 +403,6 @@ export default function ChatLayout() {
           <div className="messages-chat">
             {
               messages.map((message) => {
-                // Desempacota as configurações da mensagem!
                 const { text, isEdited, replyTo, isDeleted } = parseMessageContent(message);
 
                 return (
@@ -435,7 +419,6 @@ export default function ChatLayout() {
                         </h2>
                       </div>
                       
-                      {/* --- MODO EDIÇÃO ATIVO --- */}
                       {editingMessageId === message.id ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "5px" }}>
                           <input
@@ -455,7 +438,6 @@ export default function ChatLayout() {
                         </div>
                       ) : (
                         <div>
-                          {/* VISUAL DA MENSAGEM RESPONDIDA */}
                           {replyTo && !isDeleted && (
                               <div style={{
                                   background: message.senderName === pageData?.name ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.1)",
@@ -475,13 +457,11 @@ export default function ChatLayout() {
 
                           <p className="message-text">
                             {text}
-                            {/* TAG DE EDITADO */}
                             {isEdited && !isDeleted && (
                               <span style={{ fontSize: '10px', marginLeft: '6px', color: '#9ca3af', fontStyle: 'italic' }}>(editado)</span>
                             )}
                           </p>
                           
-                          {/* BOTÕES DE AÇÃO (Responder / Editar / Apagar) */}
                           {!isDeleted && (
                             <div style={{ display: "flex", gap: "12px", fontSize: "11px", marginTop: "8px", opacity: 0.7 }}>
                               <span style={{ cursor: "pointer", color: "#3b82f6", fontWeight: "bold" }} onClick={() => setReplyingTo(message)}>
@@ -510,10 +490,7 @@ export default function ChatLayout() {
             <div ref={messagesEndRef}></div>
           </div>
           
-          {/* CAIXA DE INPUT (Com a barrinha de responder) */}
           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', position: 'relative' }}>
-            
-            {/* PRÉVIA DA RESPOSTA NO INPUT */}
             {replyingTo && (
                 <div style={{ 
                     background: '#374151', padding: '10px 15px', display: 'flex', justifyContent: 'space-between', 
