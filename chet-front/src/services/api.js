@@ -190,3 +190,47 @@ export async function getUserStatus(userId) {
 
   return response.json();
 }
+
+export async function getProfile() {
+
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_BASE_URL}/users/me`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao carregar perfil.");
+  }
+
+  return response.json();
+}
+
+export async function updateProfile(data) {
+
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_BASE_URL}/users/me`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao atualizar perfil.");
+  }
+
+  return response.json();
+}

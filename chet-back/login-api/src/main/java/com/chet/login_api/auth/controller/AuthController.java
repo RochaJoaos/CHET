@@ -34,24 +34,44 @@ public class AuthController {
             user.setStatus(UserStatus.ONLINE);
             repository.save(user);
             String token = this.tokenservice.generateToken(user);
-            return ResponseEntity.ok(new ResponseDTO(user.getName(), token));
+            return ResponseEntity.ok(
+                    new ResponseDTO(
+                            user.getId(),
+                            user.getName(),
+                            user.getUsername(),
+                            user.getAvatarUrl(),
+                            token
+                    )
+            );
         }
         return ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody ResgisterRequestDTO body){
-        Optional<User> user = this.repository.findByEmail(body.email());
+    public ResponseEntity register(@RequestBody ResgisterRequestDTO body) {
 
-        if (user.isEmpty()){
+        Optional<User> user = repository.findByEmail(body.email());
+        if (user.isEmpty()) {
             User newUser = new User();
+
             newUser.setPassword(passwordEncoder.encode(body.password()));
             newUser.setEmail(body.email());
             newUser.setName(body.name());
+            newUser.setUsername(body.name()); // define o username inicial
             newUser.setStatus(UserStatus.OFFLINE);
-            this.repository.save(newUser);
-            String token = this.tokenservice.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getName(), token));
+
+            repository.save(newUser);
+            String token = tokenservice.generateToken(newUser);
+
+            return ResponseEntity.ok(
+                    new ResponseDTO(
+                            newUser.getId(),
+                            newUser.getName(),
+                            newUser.getUsername(),
+                            newUser.getAvatarUrl(),
+                            token
+                    )
+            );
         }
 
         return ResponseEntity.badRequest().build();

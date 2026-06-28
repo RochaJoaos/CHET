@@ -24,6 +24,9 @@ public class User {
 
     private String name;
 
+    @Column(length = 40)
+    private String username;
+
     private String email;
 
     @JsonIgnore
@@ -31,4 +34,10 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
+
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    @Column(name = "avatar_url", length = 255)
+    private String avatarUrl;
 }

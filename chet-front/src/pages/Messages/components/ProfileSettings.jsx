@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { getProfile, updateProfile } from "../../../services/api";
 import "./profile-edit.css";
 
 const NAV_ITEMS = [
@@ -9,11 +10,12 @@ const NAV_ITEMS = [
 
 
 export default function ProfileSettings({ onLogout }) {
+
   const [activeTab, setActiveTab] = useState("profile");
-  const [displayName, setDisplayName] = useState("Username");
+  const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
-  const [username, setUsername] = useState("username@example.com");
-  const [email, setEmail] = useState("username@example.com");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [avatar, setAvatar] = useState(null);
@@ -24,6 +26,50 @@ export default function ProfileSettings({ onLogout }) {
   const [hoveredNav, setHoveredNav] = useState(null);
   const [focusedInput, setFocusedInput] = useState(null);
   const fileRef = useRef();
+
+  useEffect(() => {
+      async function loadProfile() {
+          try {
+              const profile =  await getProfile();
+              setDisplayName(profile.name);
+              setUsername(profile.username ?? "");
+              setEmail(profile.email);
+              setBio(profile.bio ?? "");
+              setAvatar(profile.avatarUrl);
+          }
+          catch(err){ console.error(err); }
+      }loadProfile();
+  }, []);
+
+async function handleSave() {
+  try {
+    const updatedUser = await updateProfile({
+      name: displayName,
+      username,
+      email,
+      bio,
+      avatarUrl: avatar
+    });
+
+    // Atualiza os estados com o retorno do backend
+    setDisplayName(updatedUser.name);
+    setUsername(updatedUser.username);
+    setEmail(updatedUser.email);
+    setBio(updatedUser.bio);
+    setAvatar(updatedUser.avatarUrl);
+
+    setToastMsg("Perfil atualizado com sucesso!");
+    setShowToast(true);
+
+  } catch (err) {
+
+    console.error(err);
+
+    setToastMsg("Erro ao atualizar perfil.");
+    setShowToast(true);
+
+  }
+}
 
   const toast = (msg = "Alterações salvas!") => {
     setToastMsg(msg);
@@ -172,7 +218,7 @@ export default function ProfileSettings({ onLogout }) {
                 <div className="profile-btn-row">
                   <button
                     className="profile-btn-primary"
-                    onClick={() => toast("Perfil atualizado!")}
+                    onClick={handleSave}
                   >
                     Salvar alterações
                   </button>
@@ -238,7 +284,7 @@ export default function ProfileSettings({ onLogout }) {
                 <div className="profile-btn-row">
                   <button
                     className="profile-btn-primary"
-                    onClick={() => toast("Dados da conta atualizados!")}
+                    onClick={handleSave}
                   >
                     Salvar alterações
                   </button>
