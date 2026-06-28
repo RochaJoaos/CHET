@@ -20,33 +20,17 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-
 public class MessageService {
 
     private final MessageRepository messageRepository;
-
     private final ConversationRepository conversationRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
 
-    public MessageDTO sendMessage(
-            UUID conversationId,
-            SendMessageDTO dto
-    ) {
-
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
-
-        User sender = userRepository
-                .findByEmail(email)
-                .orElseThrow();
-
-        Conversation conversation =
-                conversationRepository
-                        .findById(conversationId)
-                        .orElseThrow();
+    public MessageDTO sendMessage(UUID conversationId, SendMessageDTO dto) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User sender = userRepository.findByEmail(email).orElseThrow();
+        Conversation conversation = conversationRepository.findById(conversationId).orElseThrow();
 
         Message message = new Message();
         message.setConversation(conversation);
@@ -67,13 +51,8 @@ public class MessageService {
         return response;
     }
 
-    public List<MessageDTO>
-    loadConversationMessages(UUID conversationId) {
-
-        return messageRepository
-                .findByConversationIdOrderByCreatedAtAsc(
-                        conversationId
-                )
+    public List<MessageDTO> loadConversationMessages(UUID conversationId) {
+        return messageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId)
                 .stream()
                 .map(message -> new MessageDTO(
                         message.getId(),
@@ -81,8 +60,64 @@ public class MessageService {
                         message.getSender().getName(),
                         message.getContent(),
                         message.getCreatedAt()
-
                 ))
                 .toList();
+    }
+
+    // 🔥 NOVOS MÉTODOS PARA EDITAR E APAGAR 🔥
+
+    public MessageDTO editMessage(UUID messageId, SendMessageDTO dto) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Mensagem não encontrada"));
+
+        // Validação de segurança: a pessoa só edita se a mensagem for dela
+        if (!message.getSender().getEmail().equals(email)) {
+            throw new RuntimeException("Você não tem permissão para editar esta mensagem");
+        }
+
+        message.setContent(dto.content());
+        message = messageRepository.save(message);
+
+        MessageDTO response = new MessageDTO(
+                message.getId(),
+                message.getSender().getId(),
+                message.getSender().getName(),
+                message.getContent(),
+                message.getCreatedAt()
+        );
+
+        // Avisa o WebSocket para atualizar a mensagem na tela do outro usuário
+        messagingTemplate.convertAndSend("/topic/conversation/" + message.getConversation().getId(), response);
+        return response;
+    }
+
+    public void deleteMessage(UUID messageId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Mensagem não encontrada"));
+
+        if (!message.getSender().getEmail().equals(email)) {
+            throw new RuntimeException("Você não tem permissão para apagar esta mensagem");
+        }
+
+        UUID conversationId = message.getConversation().getId();
+
+        // Exclui do banco de dados definitivamente
+        messageRepository.delete(message);
+        
+        // Mandamos um DTO com o texto de aviso para o WebSocket
+        // Assim o React encontra o ID antigo e substitui pelo aviso na mesma hora
+        MessageDTO response = new MessageDTO(
+                messageId, 
+                message.getSender().getId(),
+                message.getSender().getName(),
+                "🚫 Mensagem apagada",
+                message.getCreatedAt()
+        );
+        
+        messagingTemplate.convertAndSend("/topic/conversation/" + conversationId, response);
     }
 }
