@@ -4,6 +4,7 @@ import com.chet.login_api.conversation.entity.Conversation;
 import com.chet.login_api.conversation.entity.ConversationParticipant;
 import com.chet.login_api.conversation.repository.ConversationParticipantRepository;
 import com.chet.login_api.conversation.repository.ConversationRepository;
+import com.chet.login_api.infra.security.AuthenticatedUserService;
 import com.chet.login_api.user.entity.User;
 import com.chet.login_api.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,18 +23,11 @@ public class ConversationService {
     private final ConversationRepository conversationRepository;
     private final ConversationParticipantRepository participantRepository;
     private final UserRepository userRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     public Conversation createPrivateConversation(UUID targetUserId) {
 
-        var auth = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        if (auth == null) {
-            throw new RuntimeException("Auth está null");
-        }
-
-        User currentUser = (User) auth.getPrincipal();
+        User currentUser = authenticatedUserService.getCurrentUser();
 
         User targetUser = userRepository
                 .findById(targetUserId)
@@ -120,15 +114,7 @@ public class ConversationService {
     public List<ConversationListItemDTO>
     loadUserConversations() {
 
-        var auth = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        if (auth == null) {
-            throw new RuntimeException("Auth null");
-        }
-
-        User currentUser = (User) auth.getPrincipal();
+        User currentUser = authenticatedUserService.getCurrentUser();
 
         var participations =
                 participantRepository.findByUserId(
