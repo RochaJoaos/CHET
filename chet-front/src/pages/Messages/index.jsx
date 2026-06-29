@@ -47,10 +47,15 @@ export default function ChatLayout() {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
   const [showProfile, setShowProfile] = useState(false);
+  
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const [selectedGroupUsers, setSelectedGroupUsers] = useState([]);
+  const [groupName, setGroupName] = useState("");
 
   const selectedConvRef = useRef(selectedConversation);
   const pageDataRef = useRef(pageData);
   const activeSubscriptions = useRef(new Set());
+  const toastTimerRef = useRef(null);
 
   useEffect(() => { selectedConvRef.current = selectedConversation; }, [selectedConversation]);
   useEffect(() => { pageDataRef.current = pageData; }, [pageData]);
@@ -77,6 +82,50 @@ export default function ChatLayout() {
       await createConversation(userId);
     } catch (err) {}
   }
+
+  const toggleUserSelection = (userId) => {
+    setSelectedGroupUsers(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
+  };
+
+  // Função Funcional para Criar Grupo no Back-end
+  const handleCreateGroup = async () => {
+    if (!groupName || selectedGroupUsers.length === 0) return alert("Preencha o nome e selecione usuários");
+
+    try {
+        const token = getAuthToken();
+        const response = await fetch("http://localhost:8080/conversations/group", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                name: groupName,
+                userIds: selectedGroupUsers
+            })
+        });
+
+        if (response.ok) {
+            const newGroup = await response.json();
+            // Adiciona o grupo na lista imediatamente
+            setConversations(prev => [...prev, newGroup]);
+            setIsGroupModalOpen(false);
+            setGroupName("");
+            setSelectedGroupUsers([]);
+        } else {
+            alert("Erro ao criar o grupo. Verifique a rota do back-end.");
+        }
+    } catch (err) {
+        console.error("Erro ao criar grupo:", err);
+        alert("Erro de conexão com a API.");
+    }
+  };
+
+  const requestNotificationPermission = () => {
+    if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+    }
+  };
 
   useEffect(() => {
     connectSocket(() => {
@@ -147,8 +196,22 @@ export default function ChatLayout() {
                 });
 
                 if (!isMine && !parsed.isDeleted && !parsed.isEdited && !isSelected) {
-                    setToast(`Você recebeu uma mensagem de: ${incomingMessage.senderName}`);
-                    setTimeout(() => setToast(null), 4000);
+                    if (document.hidden) {
+                        if ("Notification" in window && Notification.permission === "granted") {
+                            new Notification(`Nova mensagem de ${incomingMessage.senderName}`, {
+                                body: parsed.text,
+                                icon: "/vite.svg" 
+                            });
+                        }
+                    } else {
+                        setToast(`Mensagem de: ${incomingMessage.senderName}`);
+                        if (toastTimerRef.current) {
+                            clearTimeout(toastTimerRef.current);
+                        }
+                        toastTimerRef.current = setTimeout(() => {
+                            setToast(null);
+                        }, 4000);
+                    }
                 }
 
                 if (isSelected) {
@@ -194,7 +257,6 @@ export default function ChatLayout() {
 
   useEffect(() => {
     const contats = contatsRef.current;
-    const chat = chatRef.current;
     const divider = dividerRef.current;
     const overlay = overlayRef.current;
     const main = mainRef.current;
@@ -211,6 +273,7 @@ export default function ChatLayout() {
     }
 
     function applyWidth(px) {
+      if (!main || !divider || !contats) return;
       const maxW = main.clientWidth - divider.offsetWidth - MIN_CHAT_PX;
       const w = clamp(px, MIN_PX, maxW);
       contats.style.width = w + "px";
@@ -221,8 +284,8 @@ export default function ChatLayout() {
       dragging = true;
       startX = e.clientX;
       startW = contats.getBoundingClientRect().width;
-      divider.classList.add("dragging");
-      overlay.classList.add("active");
+      if (divider) divider.classList.add("dragging");
+      if (overlay) overlay.classList.add("active");
       e.preventDefault();
     };
 
@@ -234,15 +297,15 @@ export default function ChatLayout() {
     const mouseUp = () => {
       if (!dragging) return;
       dragging = false;
-      divider.classList.remove("dragging");
-      overlay.classList.remove("active");
+      if (divider) divider.classList.remove("dragging");
+      if (overlay) overlay.classList.remove("active");
     };
 
     const touchStart = (e) => {
       dragging = true;
       startX = e.touches[0].clientX;
       startW = contats.getBoundingClientRect().width;
-      divider.classList.add("dragging");
+      if (divider) divider.classList.add("dragging");
       e.preventDefault();
     };
 
@@ -253,27 +316,31 @@ export default function ChatLayout() {
 
     const touchEnd = () => {
       dragging = false;
-      divider.classList.remove("dragging");
+      if (divider) divider.classList.remove("dragging");
     };
 
-    divider.addEventListener("mousedown", mouseDown);
+    if (divider) {
+        divider.addEventListener("mousedown", mouseDown);
+        divider.addEventListener("touchstart", touchStart, { passive: false });
+    }
     document.addEventListener("mousemove", mouseMove);
     document.addEventListener("mouseup", mouseUp);
-
-    divider.addEventListener("touchstart", touchStart, { passive: false });
     document.addEventListener("touchmove", touchMove, { passive: false });
     document.addEventListener("touchend", touchEnd);
 
     return () => {
-      divider.removeEventListener("mousedown", mouseDown);
+      if (divider) {
+          divider.removeEventListener("mousedown", mouseDown);
+          divider.removeEventListener("touchstart", touchStart);
+      }
       document.removeEventListener("mousemove", mouseMove);
       document.removeEventListener("mouseup", mouseUp);
-      divider.removeEventListener("touchstart", touchStart);
       document.removeEventListener("touchmove", touchMove);
       document.removeEventListener("touchend", touchEnd);
     };
   }, []);
 
+  // Lógica de Mensagem Instantânea Restaurada
   async function handleSendMessage() {
     if (!messageInput.trim()) return;
     if (!selectedConversation) return;
@@ -289,11 +356,30 @@ export default function ChatLayout() {
           };
       }
 
-      await sendMessage(selectedConversation.id, JSON.stringify(payload));
+      // Envia a mensagem pro servidor
+      const novaMensagem = await sendMessage(selectedConversation.id, JSON.stringify(payload));
       
       setMessageInput("");
       setReplyingTo(null); 
-    } catch (err) {}
+
+      // Atualiza a tela imediatamente para o usuário
+      if (novaMensagem && novaMensagem.id) {
+          setMessages((prev) => {
+              if (prev.find(m => m.id === novaMensagem.id)) return prev;
+              return [...prev, novaMensagem];
+          });
+      } else {
+          const listaAtualizada = await getMessages(selectedConversation.id);
+          setMessages(listaAtualizada);
+      }
+
+      setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+
+    } catch (err) {
+        console.error("Erro ao enviar:", err);
+    }
   }
 
   const startEditing = (msg) => {
@@ -343,9 +429,10 @@ export default function ChatLayout() {
     <>
       <div className="nav">
         <div className="options">
-          <a className="nav-opt opt-selected" href="">Mensagens</a>
-          <a className="nav-opt" href="">Configurações</a>
-          <a className="nav-opt" href="">Suporte</a>
+          <a className={activeTab === "conversas" ? "nav-opt opt-selected" : "nav-opt"} onClick={() => setActiveTab("conversas")}>Mensagens</a>
+          <a className={activeTab === "grupos" ? "nav-opt opt-selected" : "nav-opt"} onClick={() => setActiveTab("grupos")}>Grupos</a>
+          <a className={activeTab === "configuracoes" ? "nav-opt opt-selected" : "nav-opt"} onClick={() => setActiveTab("configuracoes")}>Configurações</a>
+          <a className="nav-opt" onClick={() => setActiveTab("suporte")}>Suporte</a>
         </div>
         <div className="options">
           <a className="nav-account" onClick={(e) => { e.preventDefault(); setShowProfile(true); }}>
@@ -353,6 +440,26 @@ export default function ChatLayout() {
           </a>
         </div>
       </div>
+
+      {isGroupModalOpen && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <div style={{ background: "#202124", padding: "20px", borderRadius: "10px", width: "350px", color: "white" }}>
+            <h2>Criar Grupo</h2>
+            <input type="text" placeholder="Nome do grupo" value={groupName} onChange={(e) => setGroupName(e.target.value)} style={{ width: "100%", padding: "10px", margin: "10px 0", background: "#374151", border: "none", color: "white", borderRadius: "5px" }} />
+            <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+              {users.map(u => (
+                <div key={u.id} onClick={() => toggleUserSelection(u.id)} 
+                  style={{ padding: "8px", background: selectedGroupUsers.includes(u.id) ? "#a855f7" : "#374151", margin: "2px 0", cursor: "pointer", borderRadius: "5px" }}>{u.name}</div>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+              <button onClick={() => setIsGroupModalOpen(false)} style={{ flex: 1, padding: "10px", background: "#6b7280", border: "none", color: "white", cursor: "pointer", borderRadius: "5px" }}>Cancelar</button>
+              <button onClick={handleCreateGroup} style={{ flex: 1, padding: "10px", background: "#a855f7", border: "none", color: "white", cursor: "pointer", borderRadius: "5px" }}>Criar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="main" ref={mainRef}>
         <div className="contats" ref={contatsRef}>
           <div className="contats-opt">
@@ -365,62 +472,59 @@ export default function ChatLayout() {
               </button>
             </div>
             <div>
-              <button className="add-friend">Criar conversa +</button>
+              {/* Botão Superior Substituído e Funcional */}
+              <button className="add-friend" onClick={() => setIsGroupModalOpen(true)}>Criar grupo +</button>
             </div>
           </div>
           <div className="messages-box">
-            <div className="conversation-area"  style={{display: activeTab === "conversas" ? "block" : "none"}}>
-              {
-                conversations.map((conversation) => (
-                  <div
-                    className={selectedConversation?.id === conversation.id ? "conversation-box active-conversation" : "conversation-box"}
-                    key={conversation.id}
-                    onClick={() => setSelectedConversation(conversation)}
-                  >
-                    <div className="photo-perfil">
-                      <div className={conversation.status === "ONLINE" ? "status online" : "status offline"}/>
+             <div className="conversation-area">
+                {(activeTab === "conversas" || activeTab === "grupos") && conversations.map((conv) => (
+                    <div key={conv.id} className={selectedConversation?.id === conv.id ? "conversation-box active-conversation" : "conversation-box"} 
+                         onClick={() => {
+                            setSelectedConversation(conv);
+                            requestNotificationPermission();
+                         }}>
+                        <div className="photo-perfil">
+                            <div className={conv.status === "ONLINE" ? "status online" : "status offline"}/>
+                        </div>
+                        <div className="info-box" style={{ position: 'relative', width: '100%', paddingRight: '35px' }}>
+                            <h2 className="conversation-name">{conv.name}</h2>
+                            <p className="conversation-desc" style={{
+                                color: chatPreviews[conv.id]?.unreadCount > 0 ? '#a855f7' : '#9ca3af',
+                                fontWeight: chatPreviews[conv.id]?.unreadCount > 0 ? 'bold' : 'normal',
+                                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px'
+                            }}>
+                                {chatPreviews[conv.id]?.text || "Sem mensagens"}
+                            </p>
+                            {chatPreviews[conv.id]?.unreadCount > 0 && (
+                                <div style={{
+                                    position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                                    minWidth: '20px', height: '20px', borderRadius: '10px', background: '#a855f7',
+                                    color: 'white', fontSize: '12px', fontWeight: 'bold', display: 'flex',
+                                    alignItems: 'center', justifyContent: 'center', padding: '0 6px'
+                                }}>
+                                    {chatPreviews[conv.id].unreadCount}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    <div className="info-box" style={{ position: 'relative', width: '100%', paddingRight: '35px' }}>
-                      <h2 className="conversation-name">{conversation.name}</h2>
-                      <p className="conversation-desc" style={{
-                          color: chatPreviews[conversation.id]?.unreadCount > 0 ? '#a855f7' : '#9ca3af',
-                          fontWeight: chatPreviews[conversation.id]?.unreadCount > 0 ? 'bold' : 'normal',
-                          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px'
-                      }}>
-                          {chatPreviews[conversation.id]?.text || "Sem Mensagem"}
-                      </p>
-                      {chatPreviews[conversation.id]?.unreadCount > 0 && (
-                          <div style={{
-                              position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-                              minWidth: '20px', height: '20px', borderRadius: '10px', background: '#a855f7',
-                              color: 'white', fontSize: '12px', fontWeight: 'bold', display: 'flex',
-                              alignItems: 'center', justifyContent: 'center', padding: '0 6px'
-                          }}>
-                              {chatPreviews[conversation.id].unreadCount}
-                          </div>
-                      )}
+                ))}
+                
+                {activeTab === "contatos" && users.map((user) => (
+                    <div key={user.id} className="conversation-box" onClick={() => handleCreateConversation(user.id)}>
+                        <div className="photo-perfil">
+                            <div className={"status offline"}/>
+                        </div>
+                        <div className="info-box">
+                            <h2 className="conversation-name">{user.name}</h2>
+                        </div>
+                        <p className="add-icon">+</p>
                     </div>
-                  </div>
-                ))
-              }
-            </div>
-            <div className="contacts-area"  style={{display: activeTab === "contatos" ? "block" : "none"}}>
-              {
-                users.map((user) => (
-                  <div className="conversation-box" key={user.id} onClick={() => handleCreateConversation(user.id)}>
-                    <div className="photo-perfil">
-                      <div className={"status offline"}/>
-                    </div>
-                    <div className="info-box">
-                      <h2 className="conversation-name">{user.name}</h2>
-                    </div>
-                    <p className="add-icon">+</p>
-                  </div>
-                ))
-              }
-            </div>
+                ))}
+             </div>
           </div>
         </div>
+
         <div className="divider" ref={dividerRef}>
           <div className="divider-handle">
             <span></span><span></span><span></span>
@@ -435,141 +539,142 @@ export default function ChatLayout() {
                 <h1 className="title-not-selected-message">Comece uma conversa!</h1>
                 <div>
                   <input type="button" value="Adicionar Amigo" className="btn-not-selected-message"/>
-                  <input type="button" value="Criar grupo" className="btn-not-selected-message"/>
+                  <input type="button" value="Criar grupo" className="btn-not-selected-message" onClick={() => setIsGroupModalOpen(true)}/>
                 </div>
               </div>
             </div>
           )}
           
-          <div className="username-chat">
-            <div className="user-area">
-              <div className="user-photo"></div>
-              <p>{selectedConversation ? selectedConversation.name : " "}</p>
-            </div>
-          </div>
-          
-          <div className="messages-chat">
-            {
-              messages.map((message) => {
-                const { text, isEdited, replyTo, isDeleted } = parseMessageContent(message);
-
-                return (
-                  <div key={message.id} className={message.senderName === pageData?.name ? "message-box mine" : "message-box"}>
-                    <div className="message-img">
-                      <div className="user-photo-messages"></div>
-                    </div>
-
-                    <div className="message-body">
-                      <div className="message-header">
-                        <h1 className="message-author">{message.senderName}</h1>
-                        <h2 className="message-date">
-                          {new Date(message.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                        </h2>
-                      </div>
-                      
-                      {editingMessageId === message.id ? (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "5px" }}>
-                          <input
-                            type="text"
-                            value={editContent}
-                            onChange={(e) => setEditContent(e.target.value)}
-                            style={{ color: "black", padding: "8px", borderRadius: "5px", border: "1px solid #ccc", width: "100%" }}
-                          />
-                          <div style={{ display: "flex", gap: "10px" }}>
-                            <button onClick={() => handleSaveEdit(message.id)} style={{ background: "#22c55e", color: "white", padding: "5px 10px", borderRadius: "5px", cursor: "pointer", border: "none" }}>
-                              Salvar
-                            </button>
-                            <button onClick={() => setEditingMessageId(null)} style={{ background: "#6b7280", color: "white", padding: "5px 10px", borderRadius: "5px", cursor: "pointer", border: "none" }}>
-                              Cancelar
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          {replyTo && !isDeleted && (
-                              <div style={{
-                                  background: message.senderName === pageData?.name ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.1)",
-                                  padding: "8px",
-                                  borderRadius: "6px",
-                                  borderLeft: "4px solid #a855f7",
-                                  marginBottom: "8px"
-                              }}>
-                                  <div style={{ color: "#a855f7", fontSize: "11px", fontWeight: "bold", marginBottom: "2px" }}>
-                                      {replyTo.sender}
-                                  </div>
-                                  <div style={{ fontSize: "12px", opacity: 0.8 }}>
-                                      {replyTo.text}
-                                  </div>
-                              </div>
-                          )}
-
-                          <p className="message-text">
-                            {text}
-                            {isEdited && !isDeleted && (
-                              <span style={{ fontSize: '10px', marginLeft: '6px', color: '#9ca3af', fontStyle: 'italic' }}>(editado)</span>
-                            )}
-                          </p>
-                          
-                          {!isDeleted && (
-                            <div style={{ display: "flex", gap: "12px", fontSize: "11px", marginTop: "8px", opacity: 0.7 }}>
-                              <span style={{ cursor: "pointer", color: "#3b82f6", fontWeight: "bold" }} onClick={() => setReplyingTo(message)}>
-                                Responder ↩
-                              </span>
-                              
-                              {message.senderName === pageData?.name && (
-                                <>
-                                  <span style={{ cursor: "pointer", color: "#a855f7", fontWeight: "bold" }} onClick={() => startEditing(message)}>
-                                    Editar ✎
-                                  </span>
-                                  <span style={{ cursor: "pointer", color: "#ef4444", fontWeight: "bold" }} onClick={() => handleDeleteMessage(message.id)}>
-                                    Apagar 🗑
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
-            }
-            <div ref={messagesEndRef}></div>
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', position: 'relative' }}>
-            {replyingTo && (
-                <div style={{ 
-                    background: '#374151', padding: '10px 15px', display: 'flex', justifyContent: 'space-between', 
-                    alignItems: 'center', borderTopLeftRadius: '12px', borderTopRightRadius: '12px', 
-                    borderBottom: '1px solid #1f2937' 
-                }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ color: '#a855f7', fontSize: '12px', fontWeight: 'bold' }}>Respondendo a {replyingTo.senderName}</span>
-                        <span style={{ color: '#ccc', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>
-                            {parseMessageContent(replyingTo).text}
-                        </span>
-                    </div>
-                    <button onClick={() => setReplyingTo(null)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>✖</button>
+          {selectedConversation && (
+            <>
+              <div className="username-chat">
+                <div className="user-area">
+                  <div className="user-photo"></div>
+                  <p>{selectedConversation.name}</p>
                 </div>
-            )}
-            
-            <div className="input-chat" style={{ borderTopLeftRadius: replyingTo ? '0' : undefined, borderTopRightRadius: replyingTo ? '0' : undefined }}>
-              <input
-                type="text"
-                id="input-message"
-                placeholder="digite uma mensagem"
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              />
-              <button id="btn-message" onClick={handleSendMessage}>
-                  <img src="src/assets/icon/send.svg" alt="send" id="icon-btn-message"/>
-              </button>
-            </div>
-          </div>
-          
+              </div>
+              
+              <div className="messages-chat">
+                {messages.map((message) => {
+                  const { text, isEdited, replyTo, isDeleted } = parseMessageContent(message);
+
+                  return (
+                    <div key={message.id} className={message.senderName === pageData?.name ? "message-box mine" : "message-box"}>
+                      <div className="message-img">
+                        <div className="user-photo-messages"></div>
+                      </div>
+
+                      <div className="message-body">
+                        <div className="message-header">
+                          <h1 className="message-author">{message.senderName}</h1>
+                          <h2 className="message-date">
+                            {new Date(message.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          </h2>
+                        </div>
+                        
+                        {editingMessageId === message.id ? (
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "5px" }}>
+                            <input
+                              type="text"
+                              value={editContent}
+                              onChange={(e) => setEditContent(e.target.value)}
+                              style={{ color: "black", padding: "8px", borderRadius: "5px", border: "1px solid #ccc", width: "100%" }}
+                            />
+                            <div style={{ display: "flex", gap: "10px" }}>
+                              <button onClick={() => handleSaveEdit(message.id)} style={{ background: "#22c55e", color: "white", padding: "5px 10px", borderRadius: "5px", cursor: "pointer", border: "none" }}>
+                                Salvar
+                              </button>
+                              <button onClick={() => setEditingMessageId(null)} style={{ background: "#6b7280", color: "white", padding: "5px 10px", borderRadius: "5px", cursor: "pointer", border: "none" }}>
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            {replyTo && !isDeleted && (
+                                <div style={{
+                                    background: message.senderName === pageData?.name ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.1)",
+                                    padding: "8px",
+                                    borderRadius: "6px",
+                                    borderLeft: "4px solid #a855f7",
+                                    marginBottom: "8px"
+                                }}>
+                                    <div style={{ color: "#a855f7", fontSize: "11px", fontWeight: "bold", marginBottom: "2px" }}>
+                                        {replyTo.sender}
+                                    </div>
+                                    <div style={{ fontSize: "12px", opacity: 0.8 }}>
+                                        {replyTo.text}
+                                    </div>
+                                </div>
+                            )}
+
+                            <p className="message-text">
+                              {text}
+                              {isEdited && !isDeleted && (
+                                <span style={{ fontSize: '10px', marginLeft: '6px', color: '#9ca3af', fontStyle: 'italic' }}>(editado)</span>
+                              )}
+                            </p>
+                            
+                            {!isDeleted && (
+                              <div style={{ display: "flex", gap: "12px", fontSize: "11px", marginTop: "8px", opacity: 0.7 }}>
+                                <span style={{ cursor: "pointer", color: "#3b82f6", fontWeight: "bold" }} onClick={() => setReplyingTo(message)}>
+                                  Responder ↩
+                                </span>
+                                
+                                {message.senderName === pageData?.name && (
+                                  <>
+                                    <span style={{ cursor: "pointer", color: "#a855f7", fontWeight: "bold" }} onClick={() => startEditing(message)}>
+                                      Editar ✎
+                                    </span>
+                                    <span style={{ cursor: "pointer", color: "#ef4444", fontWeight: "bold" }} onClick={() => handleDeleteMessage(message.id)}>
+                                      Apagar 🗑
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                <div ref={messagesEndRef}></div>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', width: '100%', position: 'relative' }}>
+                {replyingTo && (
+                    <div style={{ 
+                        background: '#374151', padding: '10px 15px', display: 'flex', justifyContent: 'space-between', 
+                        alignItems: 'center', borderTopLeftRadius: '12px', borderTopRightRadius: '12px', 
+                        borderBottom: '1px solid #1f2937' 
+                    }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ color: '#a855f7', fontSize: '12px', fontWeight: 'bold' }}>Respondendo a {replyingTo.senderName}</span>
+                            <span style={{ color: '#ccc', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>
+                                {parseMessageContent(replyingTo).text}
+                            </span>
+                        </div>
+                        <button onClick={() => setReplyingTo(null)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>✖</button>
+                    </div>
+                )}
+                
+                <div className="input-chat" style={{ borderTopLeftRadius: replyingTo ? '0' : undefined, borderTopRightRadius: replyingTo ? '0' : undefined }}>
+                  <input
+                    type="text"
+                    id="input-message"
+                    placeholder="digite uma mensagem"
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                  />
+                  <button id="btn-message" onClick={handleSendMessage}>
+                      <img src="src/assets/icon/send.svg" alt="send" id="icon-btn-message"/>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
       <div id="drag-overlay" ref={overlayRef}></div>
