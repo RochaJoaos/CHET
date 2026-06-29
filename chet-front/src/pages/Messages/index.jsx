@@ -87,38 +87,15 @@ export default function ChatLayout() {
     setSelectedGroupUsers(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
   };
 
-  // Função Funcional para Criar Grupo no Back-end
   const handleCreateGroup = async () => {
     if (!groupName || selectedGroupUsers.length === 0) return alert("Preencha o nome e selecione usuários");
-
-    try {
-        const token = getAuthToken();
-        const response = await fetch("http://localhost:8080/conversations/group", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                name: groupName,
-                userIds: selectedGroupUsers
-            })
-        });
-
-        if (response.ok) {
-            const newGroup = await response.json();
-            // Adiciona o grupo na lista imediatamente
-            setConversations(prev => [...prev, newGroup]);
-            setIsGroupModalOpen(false);
-            setGroupName("");
-            setSelectedGroupUsers([]);
-        } else {
-            alert("Erro ao criar o grupo. Verifique a rota do back-end.");
-        }
-    } catch (err) {
-        console.error("Erro ao criar grupo:", err);
-        alert("Erro de conexão com a API.");
-    }
+    console.log("Criando grupo:", groupName, "com usuários:", selectedGroupUsers);
+    
+    // TODO: Chame sua API de criação de grupo aqui
+    
+    setIsGroupModalOpen(false);
+    setGroupName("");
+    setSelectedGroupUsers([]);
   };
 
   const requestNotificationPermission = () => {
@@ -255,6 +232,7 @@ export default function ChatLayout() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // RESTAURAÇÃO DA LÓGICA DO DIVIDER (ARRUASTAR E REDIMENSIONAR)
   useEffect(() => {
     const contats = contatsRef.current;
     const divider = dividerRef.current;
@@ -340,7 +318,6 @@ export default function ChatLayout() {
     };
   }, []);
 
-  // Lógica de Mensagem Instantânea Restaurada
   async function handleSendMessage() {
     if (!messageInput.trim()) return;
     if (!selectedConversation) return;
@@ -356,23 +333,28 @@ export default function ChatLayout() {
           };
       }
 
-      // Envia a mensagem pro servidor
+      // 1. Envia para o back-end e guarda o retorno
       const novaMensagem = await sendMessage(selectedConversation.id, JSON.stringify(payload));
       
+      // 2. Limpa os campos na hora
       setMessageInput("");
       setReplyingTo(null); 
 
-      // Atualiza a tela imediatamente para o usuário
+      // 3. Atualiza a sua tela imediatamente
       if (novaMensagem && novaMensagem.id) {
+          // Se a API retornar a mensagem criada, adiciona ela na lista
           setMessages((prev) => {
+              // Evita duplicar caso o WebSocket já tenha entregado
               if (prev.find(m => m.id === novaMensagem.id)) return prev;
               return [...prev, novaMensagem];
           });
       } else {
+          // Plano B: Se a API não retornar o objeto, força a busca das mensagens atualizadas
           const listaAtualizada = await getMessages(selectedConversation.id);
           setMessages(listaAtualizada);
       }
 
+      // Faz a rolagem descer para a mensagem nova
       setTimeout(() => {
           messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
@@ -381,7 +363,6 @@ export default function ChatLayout() {
         console.error("Erro ao enviar:", err);
     }
   }
-
   const startEditing = (msg) => {
     setEditingMessageId(msg.id);
     setEditContent(parseMessageContent(msg).text); 
@@ -472,8 +453,7 @@ export default function ChatLayout() {
               </button>
             </div>
             <div>
-              {/* Botão Superior Substituído e Funcional */}
-              <button className="add-friend" onClick={() => setIsGroupModalOpen(true)}>Criar grupo +</button>
+              <button className="add-friend" onClick={() => setIsGroupModalOpen(true)}>Criar conversa +</button>
             </div>
           </div>
           <div className="messages-box">
@@ -509,6 +489,12 @@ export default function ChatLayout() {
                         </div>
                     </div>
                 ))}
+                
+                {activeTab === "grupos" && (
+                    <div className="conversation-box" style={{ justifyContent: "center", cursor: "pointer" }} onClick={() => setIsGroupModalOpen(true)}>
+                        <h2 className="conversation-name" style={{ color: "#a855f7" }}>+ Novo Grupo</h2>
+                    </div>
+                )}
                 
                 {activeTab === "contatos" && users.map((user) => (
                     <div key={user.id} className="conversation-box" onClick={() => handleCreateConversation(user.id)}>
