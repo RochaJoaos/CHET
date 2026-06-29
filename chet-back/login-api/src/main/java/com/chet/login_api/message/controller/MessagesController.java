@@ -1,5 +1,6 @@
 package com.chet.login_api.message.controller;
 
+import com.chet.login_api.infra.security.AuthenticatedUserService;
 import com.chet.login_api.message.dto.MessagesPageDTO;
 import com.chet.login_api.user.entity.User;
 import com.chet.login_api.user.repository.UserRepository;
@@ -15,12 +16,12 @@ import org.springframework.web.bind.annotation.*;
 
 public class MessagesController {
 
-    @GetMapping
-    public MessagesPageDTO loadMessagesPage(
-            Authentication authentication
-    ) {
+    private final AuthenticatedUserService authenticatedUserService;
 
-        User user = (User) authentication.getPrincipal();
+    @GetMapping
+    public MessagesPageDTO loadMessagesPage() {
+
+        User user = authenticatedUserService.getCurrentUser();
 
         return new MessagesPageDTO(
                 user.getName(),

@@ -2,6 +2,7 @@ package com.chet.login_api.message.service;
 
 import com.chet.login_api.conversation.entity.Conversation;
 import com.chet.login_api.conversation.repository.ConversationRepository;
+import com.chet.login_api.infra.security.AuthenticatedUserService;
 import com.chet.login_api.message.dto.MessageDTO;
 import com.chet.login_api.message.dto.SendMessageDTO;
 import com.chet.login_api.message.entity.Message;
@@ -25,10 +26,10 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ConversationRepository conversationRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    private final UserRepository userRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     public MessageDTO sendMessage(UUID conversationId, SendMessageDTO dto) {
-        User sender = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User sender = authenticatedUserService.getCurrentUser();
         Conversation conversation = conversationRepository.findById(conversationId).orElseThrow();
 
         Message message = new Message();
@@ -66,13 +67,13 @@ public class MessageService {
     // NOVOS MÉTODOS PARA EDITAR E APAGAR
 
     public MessageDTO editMessage(UUID messageId, SendMessageDTO dto) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = authenticatedUserService.getCurrentUser();
         
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new RuntimeException("Mensagem não encontrada"));
 
         // Validação de segurança: a pessoa só edita se a mensagem for dela
-        if (!message.getSender().getEmail().equals(email)) {
+        if (!message.getSender().getId().equals(currentUser.getId())) {
             throw new RuntimeException("Você não tem permissão para editar esta mensagem");
         }
 
@@ -93,12 +94,12 @@ public class MessageService {
     }
 
     public void deleteMessage(UUID messageId) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = authenticatedUserService.getCurrentUser();
         
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new RuntimeException("Mensagem não encontrada"));
 
-        if (!message.getSender().getEmail().equals(email)) {
+        if (!message.getSender().getId().equals(currentUser.getId())) {
             throw new RuntimeException("Você não tem permissão para apagar esta mensagem");
         }
 

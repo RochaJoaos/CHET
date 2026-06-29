@@ -1,9 +1,9 @@
 package com.chet.login_api.user.service;
 
+import com.chet.login_api.infra.security.AuthenticatedUserService;
 import com.chet.login_api.user.dto.UpdateProfileDTO;
 import com.chet.login_api.user.dto.UserProfileDTO;
 import  com.chet.login_api.user.dto.UserListDTO;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.chet.login_api.user.entity.User;
 import com.chet.login_api.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository repository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     public List<UserListDTO> getAllUsers() {
 
@@ -33,22 +34,9 @@ public class UserService {
                 .toList();
     }
 
-    private User getAuthenticatedUser() {
-
-        var auth = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        if (auth == null || !(auth.getPrincipal() instanceof User)) {
-            throw new RuntimeException("Usuário não autenticado.");
-        }
-
-        return (User) auth.getPrincipal();
-    }
-
     public UserProfileDTO getProfile() {
 
-        User user = getAuthenticatedUser();
+        User user = authenticatedUserService.getCurrentUser();
 
         return new UserProfileDTO(
                 user.getId(),
@@ -64,7 +52,7 @@ public class UserService {
             UpdateProfileDTO dto
     ) {
 
-        User user = getAuthenticatedUser();
+        User user = authenticatedUserService.getCurrentUser();
 
         user.setName(dto.name());
         user.setUsername(dto.username());
