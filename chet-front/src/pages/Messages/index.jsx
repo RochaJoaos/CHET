@@ -441,8 +441,6 @@ export default function ChatLayout() {
         <div className="options">
           <a className={activeTab === "conversas" ? "nav-opt opt-selected" : "nav-opt"} onClick={() => setActiveTab("conversas")}>Mensagens</a>
           <a className={activeTab === "grupos" ? "nav-opt opt-selected" : "nav-opt"} onClick={() => setActiveTab("grupos")}>Grupos</a>
-          <a className={activeTab === "configuracoes" ? "nav-opt opt-selected" : "nav-opt"} onClick={() => setActiveTab("configuracoes")}>Configurações</a>
-          <a className="nav-opt" onClick={() => setActiveTab("suporte")}>Suporte</a>
         </div>
         <div className="options">
           <a className="nav-account" onClick={(e) => { e.preventDefault(); setShowProfile(true); }}>
@@ -452,65 +450,101 @@ export default function ChatLayout() {
       </div>
 
       {/* Modal Criar Grupo */}
-      {isGroupModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <div style={{ background: "#202124", padding: "20px", borderRadius: "10px", width: "350px", color: "white" }}>
-            <h2>Criar Grupo</h2>
-            <input type="text" placeholder="Nome do grupo" value={groupName} onChange={(e) => setGroupName(e.target.value)}
-              style={{ width: "100%", padding: "10px", margin: "10px 0", background: "#374151", border: "none", color: "white", borderRadius: "5px", boxSizing: "border-box" }} />
-            <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-              {users.map(u => (
-                <div key={u.id} onClick={() => toggleUserSelection(u.id)}
-                  style={{ padding: "8px", background: selectedGroupUsers.includes(u.id) ? "#a855f7" : "#374151", margin: "2px 0", cursor: "pointer", borderRadius: "5px" }}>{u.name}</div>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
-              <button onClick={() => { setIsGroupModalOpen(false); setGroupName(""); setSelectedGroupUsers([]); }}
-                style={{ flex: 1, padding: "10px", background: "#6b7280", border: "none", color: "white", cursor: "pointer", borderRadius: "5px" }}>Cancelar</button>
-              <button onClick={handleCreateGroup}
-                style={{ flex: 1, padding: "10px", background: "#a855f7", border: "none", color: "white", cursor: "pointer", borderRadius: "5px" }}>Criar</button>
-            </div>
-          </div>
-        </div>
-      )}
+{isGroupModalOpen && (
+  <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div style={{ background: "#202124", padding: "20px", borderRadius: "10px", width: "350px", color: "white" }}>
+      <h2>Criar Grupo</h2>
+      <input type="text" placeholder="Nome do grupo" value={groupName} onChange={(e) => setGroupName(e.target.value)}
+        style={{ width: "100%", padding: "10px", margin: "10px 0", background: "#374151", border: "none", color: "white", borderRadius: "5px", boxSizing: "border-box" }} />
+      <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+        {users.map(u => (
+          <div key={u.id} onClick={() => toggleUserSelection(u.id)}
+            style={{ padding: "8px", background: selectedGroupUsers.includes(u.id) ? "#a855f7" : "#374151", margin: "2px 0", cursor: "pointer", borderRadius: "5px" }}>{u.name}</div>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+        <button onClick={() => { setIsGroupModalOpen(false); setGroupName(""); setSelectedGroupUsers([]); }}
+          style={{ flex: 1, padding: "10px", background: "#6b7280", border: "none", color: "white", cursor: "pointer", borderRadius: "6px", fontWeight: "500", transition: "0.2s" }}
+          onMouseOver={(e) => e.target.style.background = "#4b5563"}
+          onMouseOut={(e) => e.target.style.background = "#6b7280"}>
+          Cancelar
+        </button>
+        <button onClick={handleCreateGroup}
+          style={{ flex: 1, padding: "10px", background: "#a855f7", border: "none", color: "white", cursor: "pointer", borderRadius: "6px", fontWeight: "500", transition: "0.2s" }}
+          onMouseOver={(e) => e.target.style.background = "#9333ea"}
+          onMouseOut={(e) => e.target.style.background = "#a855f7"}>
+          Criar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Modal Renomear Grupo */}
-      {isRenameModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <div style={{ background: "#202124", padding: "20px", borderRadius: "10px", width: "350px", color: "white" }}>
-            <h2>Renomear Grupo</h2>
-            <input type="text" placeholder="Novo nome do grupo" value={renameValue} onChange={(e) => setRenameValue(e.target.value)}
-              style={{ width: "100%", padding: "10px", margin: "10px 0", background: "#374151", border: "none", color: "white", borderRadius: "5px", boxSizing: "border-box" }} />
-            <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
-              <button onClick={() => { setIsRenameModalOpen(false); setRenameValue(""); }}
-                style={{ flex: 1, padding: "10px", background: "#6b7280", border: "none", color: "white", cursor: "pointer", borderRadius: "5px" }}>Cancelar</button>
-              <button onClick={handleRenameGroup}
-                style={{ flex: 1, padding: "10px", background: "#a855f7", border: "none", color: "white", cursor: "pointer", borderRadius: "5px" }}>Salvar</button>
-            </div>
-          </div>
-        </div>
-      )}
+{isRenameModalOpen && (
+  <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div style={{ background: "#202124", padding: "20px", borderRadius: "10px", width: "350px", color: "white" }}>
+      <h2>Renomear Grupo</h2>
+      <input type="text" placeholder="Novo nome do grupo" value={renameValue} onChange={(e) => setRenameValue(e.target.value)}
+        style={{ width: "100%", padding: "10px", margin: "10px 0", background: "#374151", border: "none", color: "white", borderRadius: "5px", boxSizing: "border-box" }} />
+      <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+        <button onClick={() => { setIsRenameModalOpen(false); setRenameValue(""); }}
+          style={{ flex: 1, padding: "10px", background: "#6b7280", border: "none", color: "white", cursor: "pointer", borderRadius: "6px", fontWeight: "500", transition: "0.2s" }}
+          onMouseOver={(e) => e.target.style.background = "#4b5563"}
+          onMouseOut={(e) => e.target.style.background = "#6b7280"}>
+          Cancelar
+        </button>
+        <button onClick={handleRenameGroup}
+          style={{ flex: 1, padding: "10px", background: "#a855f7", border: "none", color: "white", cursor: "pointer", borderRadius: "6px", fontWeight: "500", transition: "0.2s" }}
+          onMouseOver={(e) => e.target.style.background = "#9333ea"}
+          onMouseOut={(e) => e.target.style.background = "#a855f7"}>
+          Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Modal Adicionar Participante */}
-      {isAddParticipantModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <div style={{ background: "#202124", padding: "20px", borderRadius: "10px", width: "350px", color: "white" }}>
-            <h2>Adicionar Participante</h2>
-            <div style={{ maxHeight: "250px", overflowY: "auto", margin: "10px 0" }}>
-              {users.map(u => (
-                <div key={u.id} onClick={() => setAddParticipantUserId(u.id)}
-                  style={{ padding: "8px", background: addParticipantUserId === u.id ? "#a855f7" : "#374151", margin: "2px 0", cursor: "pointer", borderRadius: "5px" }}>{u.name}</div>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
-              <button onClick={() => { setIsAddParticipantModalOpen(false); setAddParticipantUserId(""); }}
-                style={{ flex: 1, padding: "10px", background: "#6b7280", border: "none", color: "white", cursor: "pointer", borderRadius: "5px" }}>Cancelar</button>
-              <button onClick={handleAddParticipant} disabled={!addParticipantUserId}
-                style={{ flex: 1, padding: "10px", background: addParticipantUserId ? "#a855f7" : "#4b5563", border: "none", color: "white", cursor: addParticipantUserId ? "pointer" : "not-allowed", borderRadius: "5px" }}>Adicionar</button>
-            </div>
-          </div>
-        </div>
-      )}
+{isAddParticipantModalOpen && (
+  <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div style={{ background: "#202124", padding: "20px", borderRadius: "10px", width: "350px", color: "white" }}>
+      <h2>Adicionar Participante</h2>
+      <div style={{ maxHeight: "250px", overflowY: "auto", margin: "10px 0" }}>
+        {users.map(u => (
+          <div key={u.id} onClick={() => setAddParticipantUserId(u.id)}
+            style={{ padding: "8px", background: addParticipantUserId === u.id ? "#a855f7" : "#374151", margin: "2px 0", cursor: "pointer", borderRadius: "5px" }}>{u.name}</div>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+        {/* Botão Cancelar */}
+        <button 
+          onClick={() => { setIsAddParticipantModalOpen(false); setAddParticipantUserId(""); }}
+          style={{ flex: 1, padding: "10px", backgroundColor: "#6b7280", border: "none", color: "white", cursor: "pointer", borderRadius: "6px", fontWeight: "500" }}
+        >
+          Cancelar
+        </button>
+        
+        {/* Botão Adicionar */}
+        <button 
+          onClick={handleAddParticipant} 
+          disabled={!addParticipantUserId}
+          style={{ 
+            flex: 1, padding: "10px", 
+            backgroundColor: addParticipantUserId ? "#10b981" : "#4b5563", 
+            border: "none", color: "white", 
+            cursor: addParticipantUserId ? "pointer" : "not-allowed", 
+            borderRadius: "6px", fontWeight: "500", transition: "0.2s" 
+          }}
+          onMouseOver={(e) => addParticipantUserId && (e.target.style.backgroundColor = "#059669")}
+          onMouseOut={(e) => addParticipantUserId && (e.target.style.backgroundColor = "#10b981")}
+        >
+          👤 Adicionar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       <div className="main" ref={mainRef}>
         <div className="contats" ref={contatsRef}>
